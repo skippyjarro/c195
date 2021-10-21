@@ -1,13 +1,16 @@
 package main;
 
-import helper.JDBC;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 
 import java.sql.SQLException;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.util.Locale;
 
 public class Main extends Application {
 
@@ -23,6 +26,7 @@ public class Main extends Application {
 
 
     public static void main(String[] args) throws SQLException, ClassNotFoundException {
+        //Locale.setDefault(Locale.FRANCE);
         launch(args);
     }
 }

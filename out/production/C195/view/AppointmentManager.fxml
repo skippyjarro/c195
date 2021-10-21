@@ -1,14 +1,61 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.lang.*?>
-<?import java.util.*?>
-<?import javafx.scene.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
 
-<AnchorPane xmlns="http://javafx.com/javafx"
-            xmlns:fx="http://javafx.com/fxml"
-            fx:controller="controller.AppointmentManagerController"
-            prefHeight="400.0" prefWidth="600.0">
-
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="768.0" prefWidth="1366.0" xmlns="http://javafx.com/javafx/11.0.2" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.AppointmentManagerController">
+   <children>
+      <VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="800.0" spacing="50.0" AnchorPane.bottomAnchor="20.0" AnchorPane.leftAnchor="20.0" AnchorPane.rightAnchor="20.0" AnchorPane.topAnchor="20.0">
+         <children>
+            <HBox alignment="CENTER_LEFT" spacing="600.0">
+               <children>
+                  <Label text="Appointment Manager">
+                     <font>
+                        <Font name="System Bold" size="18.0" />
+                     </font>
+                  </Label>
+                  <Label fx:id="currentUserLabel" contentDisplay="CENTER" text="Current User" translateX="350.0" />
+               </children>
+            </HBox>
+            <HBox spacing="20.0" translateY="40.0">
+               <children>
+                  <RadioButton fx:id="allApptRadio" mnemonicParsing="false" onAction="#getAppointments" selected="true" text="All">
+                     <toggleGroup>
+                        <ToggleGroup fx:id="weekMonthViewRadio" />
+                     </toggleGroup>
+                  </RadioButton>
+                  <RadioButton fx:id="weekViewRadio" mnemonicParsing="false" onAction="#getAppointments" text="Week" toggleGroup="$weekMonthViewRadio" />
+                  <RadioButton fx:id="monthViewRadio" mnemonicParsing="false" onAction="#getAppointments" text="Month" toggleGroup="$weekMonthViewRadio" />
+               </children>
+            </HBox>
+            <TableView fx:id="apptTableview">
+              <columns>
+                <TableColumn fx:id="apptIdCol" maxWidth="100.0" minWidth="100.0" prefWidth="100.0" text="Appointment ID" />
+                <TableColumn fx:id="apptTitleCol" maxWidth="120.0" minWidth="120.0" prefWidth="120.0" text="Title" />
+                  <TableColumn fx:id="apptDescriptionCol" maxWidth="200.0" minWidth="200.0" prefWidth="200.0" text="Description" />
+                  <TableColumn fx:id="apptLocationCol" maxWidth="120.0" minWidth="120.0" prefWidth="120.0" text="Location" />
+                <TableColumn fx:id="contactCol" maxWidth="100.0" minWidth="100.0" prefWidth="100.0" text="Contact" />
+                <TableColumn fx:id="typeCol" maxWidth="120.0" minWidth="120.0" prefWidth="120.0" text="Type" />
+                  <TableColumn fx:id="startDateTimeCol" maxWidth="160.0" minWidth="160.0" prefWidth="160.0" text="Start Date and Time" />
+                  <TableColumn fx:id="endDateTimeCol" maxWidth="160.0" minWidth="160.0" prefWidth="160.0" text="End Date and Time" />
+                  <TableColumn fx:id="CustomerIdCol" prefWidth="75.0" text="Customer ID" />
+                  <TableColumn fx:id="userIdCol" prefWidth="75.0" text="User ID" />
+              </columns>
+            </TableView>
+            <HBox alignment="CENTER_RIGHT" spacing="20.0" translateY="-40.0">
+               <children>
+                  <Button fx:id="addApptButton" mnemonicParsing="false" text="Add Appointment" />
+                  <Button fx:id="deleteApptButton" mnemonicParsing="false" text="Delete Appointment" />
+               </children>
+            </HBox>
+            <HBox alignment="CENTER_RIGHT">
+               <children>
+                  <Button fx:id="manageCustomersButton" mnemonicParsing="false" onAction="#toManageCustomers" text="Manage Customers" translateY="-70.0" />
+               </children>
+            </HBox>
+            <Button fx:id="exitButton" alignment="TOP_LEFT" mnemonicParsing="false" onAction="#exitProgram" text="Exit" translateX="1280.0" />
+         </children>
+      </VBox>
+   </children>
 </AnchorPane>

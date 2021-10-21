@@ -1,18 +1,24 @@
 package model;
 
+import javafx.collections.ObservableList;
+
 public class Customer {
     private int customerID;
     private String customerName;
     private String customerAddress;
     private String customerPostalCode;
     private String customerPhone;
+    private String firstLevelDivision;
+    private String custCountry;
 
-    public Customer(int customerID, String customerName, String customerAddress, String customerPostalCode, String customerPhone) {
+    public Customer(int customerID, String customerName, String customerAddress, String customerPostalCode, String customerPhone, String firstLevelDivision, String custCountry) {
         this.customerID = customerID;
         this.customerName = customerName;
         this.customerAddress = customerAddress;
         this.customerPostalCode = customerPostalCode;
         this.customerPhone = customerPhone;
+        this.firstLevelDivision = firstLevelDivision;
+        this.custCountry = custCountry;
     }
 
     public int getCustomerID() {
@@ -53,5 +59,21 @@ public class Customer {
 
     public void setCustomerPhone(String customerPhone) {
         this.customerPhone = customerPhone;
+    }
+
+    public String getFirstLevelDivision() {
+        return firstLevelDivision;
+    }
+
+    public void setFirstLevelDivision(String firstLevelDivision) {
+        this.firstLevelDivision = firstLevelDivision;
+    }
+
+    public String getCustCountry() {
+        return custCountry;
+    }
+
+    public void setCustCountry(String custCountry) {
+        this.custCountry = custCountry;
     }
 }

@@ -1,17 +1,18 @@
 package model;
 
-import java.time.LocalDateTime;
-
 public class Appointment {
     private int appointmentID;
     private String title;
     private String description;
     private String location;
     private String type;
-    private LocalDateTime startDateTime;
-    private LocalDateTime endDateTime;
+    private String startDateTime;
+    private String endDateTime;
+    private int customerID;
+    private String contactID;
+    private int userID;
 
-    public Appointment(int appointmentID, String title, String description, String location, String type, LocalDateTime startDateTime, LocalDateTime endDateTime) {
+    public Appointment(int appointmentID, String title, String description, String location, String type, String startDateTime, String endDateTime, int customerID, int userID, String contactID) {
         this.appointmentID = appointmentID;
         this.title = title;
         this.description = description;
@@ -19,6 +20,9 @@ public class Appointment {
         this.type = type;
         this.startDateTime = startDateTime;
         this.endDateTime = endDateTime;
+        this.customerID = customerID;
+        this.userID = userID;
+        this.contactID = contactID;
     }
 
     public int getAppointmentID() {
@@ -61,19 +65,43 @@ public class Appointment {
         this.type = type;
     }
 
-    public LocalDateTime getStartDateTime() {
+    public String getStartDateTime() {
         return startDateTime;
     }
 
-    public void setStartDateTime(LocalDateTime startDateTime) {
+    public void setStartDateTime(String startDateTime) {
         this.startDateTime = startDateTime;
     }
 
-    public LocalDateTime getEndDateTime() {
+    public String getEndDateTime() {
         return endDateTime;
     }
 
-    public void setEndDateTime(LocalDateTime endDateTime) {
+    public void setEndDateTime(String endDateTime) {
         this.endDateTime = endDateTime;
+    }
+
+    public int getCustomerID() {
+        return customerID;
+    }
+
+    public void setCustomerID(int customerID) {
+        this.customerID = customerID;
+    }
+
+    public String getContactID() {
+        return contactID;
+    }
+
+    public void setContactID(String contactID) {
+        this.contactID = contactID;
+    }
+
+    public int getUserID() {
+        return userID;
+    }
+
+    public void setUserID(int userID) {
+        this.userID = userID;
     }
 }

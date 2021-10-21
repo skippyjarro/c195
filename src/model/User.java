@@ -1,13 +1,21 @@
 package model;
 
 public class User {
+    private static int currentUserId;
     private int userID;
-    private String userName;
-    private static String sessionID;
+    private static String currentUserName;
 
     public User(int userID, String userName) {
         this.userID = userID;
-        this.userName = userName;
+        this.currentUserName = userName;
+    }
+
+    public static int getCurrentUserId() {
+        return currentUserId;
+    }
+
+    public static void setCurrentUserId(int sessionUserId) {
+        currentUserId = sessionUserId;
     }
 
     public int getUserID() {
@@ -18,19 +26,12 @@ public class User {
         this.userID = userID;
     }
 
-    public String getUserName() {
-        return userName;
+    public static String getCurrentUserName() {
+        return currentUserName;
     }
 
-    public void setUserName(String userName) {
-        this.userName = userName;
+    public static void setCurrentUserName(String username) {
+        currentUserName = username;
     }
 
-    public static String getSessionID() {
-        return sessionID;
-    }
-
-    public static void setSessionID(String sessionID) {
-        User.sessionID = sessionID;
-    }
 }

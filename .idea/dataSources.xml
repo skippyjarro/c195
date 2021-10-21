@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="DataSourceManagerImpl" format="xml" multifile-model="true">
-    <data-source source="LOCAL" name="skipfam.com" uuid="1e95a31b-e4d2-47c1-a50a-5ddee6b65faf">
+    <data-source source="LOCAL" name="skipfam.com" uuid="480a5709-f1e3-45fc-ba71-74f6098360c6">
       <driver-ref>mysql.8</driver-ref>
       <synchronize>true</synchronize>
       <jdbc-driver>com.mysql.jdbc.Driver</jdbc-driver>
-      <jdbc-url>jdbc:mysql://skipfam.com:3306/apptmgr</jdbc-url>
+      <jdbc-url>jdbc:mysql://skipfam.com:3306</jdbc-url>
       <working-dir>$ProjectFileDir$</working-dir>
     </data-source>
   </component>
