@@ -1,8 +1,6 @@
 package controller;
 
-import DAO.CountryDAOImpl;
-import DAO.CustomerDAOImpl;
-import DAO.FirstLevelDivisionDAOImpl;
+import DAO.*;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -14,6 +12,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.Stage;
+import model.Appointment;
 import model.Customer;
 
 import java.io.IOException;
@@ -28,6 +27,7 @@ public class ManageCustomersController implements Initializable {
     CustomerDAOImpl customerDAO;
     CountryDAOImpl countryDAO;
     FirstLevelDivisionDAOImpl firstLevelDivisionDAO;
+    AppointmentDAO appointmentDAO;
     int customerID;
     String customerName;
     String customerPhone;
@@ -103,6 +103,7 @@ public class ManageCustomersController implements Initializable {
         firstLevelDivisionDAO = new FirstLevelDivisionDAOImpl();
         countryDAO = new CountryDAOImpl();
         customerDAO = new CustomerDAOImpl();
+        appointmentDAO = new AppointmentDAOImpl();
         custIDCol.setCellValueFactory(new PropertyValueFactory<>("customerID"));
         nameCol.setCellValueFactory(new PropertyValueFactory<>("customerName"));
         phoneCol.setCellValueFactory(new PropertyValueFactory<>("customerPhone"));
@@ -167,15 +168,22 @@ public class ManageCustomersController implements Initializable {
 
 
     public void saveCustomer(ActionEvent actionEvent) throws SQLException, ClassNotFoundException {
-        customerID = Integer.parseInt(custIDField.getText());
+        if (countryBox.getSelectionModel().isEmpty() || custNameField.getText().isEmpty() || custAddressField.getText().isEmpty() || postalCodeField.getText().isEmpty() || custPhoneField.getText().isEmpty() || firstLevelDivBox.getSelectionModel().isEmpty()) {
+            Alert missingFieldsAlert = new Alert(Alert.AlertType.ERROR);
+            missingFieldsAlert.setTitle("Error");
+            missingFieldsAlert.setHeaderText("All fields are required");
+            missingFieldsAlert.showAndWait();
+            return;
+        }
         customerName = custNameField.getText();
         customerAddress = custAddressField.getText();
         customerPostalCode = postalCodeField.getText();
         customerPhone = custPhoneField.getText();
         divisionID = firstLevelDivisionDAO.getFirstLevelDivID(firstLevelDivBox.getSelectionModel().getSelectedItem().toString());
-        if (!custIDField.getText().isEmpty()) {
+        try {
+            customerID = Integer.parseInt(custIDField.getText());
             customerDAO.updateCustomer(customerID, customerName, customerAddress, customerPostalCode, customerPhone, divisionID);
-        } else {
+        } catch (Exception e) {
             customerDAO.addCustomer(customerName, customerAddress, customerPostalCode, customerPhone, divisionID);
         }
         clearForm(actionEvent);
@@ -195,15 +203,33 @@ public class ManageCustomersController implements Initializable {
 
     public void deleteCustomer(ActionEvent actionEvent) throws SQLException, ClassNotFoundException {
         Customer customer = (Customer) customerTable.getSelectionModel().getSelectedItem();
-        boolean result = customerDAO.deleteCustomer(customer.getCustomerID());
-        if (result) {
-            System.out.println("Yay");
-        } else {
-            System.out.println("Boo");
+        System.out.println(customer.getCustomerID());
+        boolean verifyAppt = appointmentDAO.getCustomerAppointments(customer.getCustomerID());
+        if (verifyAppt) {
+            Alert existingApptAlert = new Alert(Alert.AlertType.CONFIRMATION);
+            existingApptAlert.setTitle("Confirm");
+            existingApptAlert.setHeaderText("There are appointments associated to " + customer.getCustomerName() + ".\nProceeding will delete all associated appointments.  Are you sure?");
+            existingApptAlert.showAndWait();
+            if (existingApptAlert.getResult().toString().contains("Cancel")){
+                return;
+            }
         }
-        clearForm(actionEvent);
-        populateCustomerTable();
-    }
+            boolean result = customerDAO.deleteCustomer(customer.getCustomerID());
+            //Show deletion success/failure dialog
+            if (result) {
+                Alert successAlert = new Alert(Alert.AlertType.INFORMATION);
+                successAlert.setTitle("Success");
+                successAlert.setHeaderText(customer.getCustomerName() + " Deleted Successfully");
+                successAlert.showAndWait();
+            } else if (!result) {
+                Alert failureAlert = new Alert(Alert.AlertType.ERROR);
+                failureAlert.setTitle("Error");
+                failureAlert.setHeaderText("There was a problem deleting " + customer.getCustomerName());
+                failureAlert.showAndWait();
+            }
+            clearForm(actionEvent);
+            populateCustomerTable();
+        }
 
     public void editCustomer(ActionEvent actionEvent) {
         Customer customer = (Customer) customerTable.getSelectionModel().getSelectedItem();

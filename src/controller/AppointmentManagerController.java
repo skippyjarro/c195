@@ -11,6 +11,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.Stage;
+import model.Appointment;
 import model.User;
 
 import java.io.IOException;
@@ -20,65 +21,70 @@ import java.text.ParseException;
 import java.util.ResourceBundle;
 
 public class AppointmentManagerController implements Initializable {
-    public Button manageCustomersButton;
     AppointmentDAOImpl appointmentDAO;
 
     @FXML
-    public ToggleGroup weekMonthViewRadio;
+    private ToggleGroup weekMonthViewRadio;
 
     @FXML
-    public Label currentUserLabel;
+    private Label currentUserLabel;
 
     @FXML
-    public RadioButton weekViewRadio;
+    private RadioButton weekViewRadio;
 
     @FXML
-    public RadioButton monthViewRadio;
+    private RadioButton monthViewRadio;
 
     @FXML
-    public TableColumn apptIdCol;
+    private TableColumn apptIdCol;
 
     @FXML
-    public TableColumn apptTitleCol;
+    private TableColumn apptTitleCol;
 
     @FXML
-    public TableColumn apptDescriptionCol;
+    private TableColumn apptDescriptionCol;
 
     @FXML
-    public TableColumn apptLocationCol;
+    private TableColumn apptLocationCol;
 
     @FXML
-    public TableColumn contactCol;
+    private TableColumn contactCol;
 
     @FXML
-    public TableColumn typeCol;
+    private TableColumn typeCol;
 
     @FXML
-    public TableColumn startDateTimeCol;
+    private TableColumn startDateTimeCol;
 
     @FXML
-    public TableColumn endDateTimeCol;
+    private TableColumn endDateTimeCol;
 
     @FXML
-    public TableColumn CustomerIdCol;
+    private TableColumn CustomerIdCol;
 
     @FXML
-    public TableColumn userIdCol;
+    private TableColumn userIdCol;
 
     @FXML
-    public Button addApptButton;
+    private Button addApptButton;
 
     @FXML
-    public Button deleteApptButton;
+    private Button editButton;
 
     @FXML
-    public Button exitButton;
+    private Button cancelApptButton;
 
     @FXML
-    public TableView apptTableview;
+    private Button manageCustomersButton;
 
     @FXML
-    public RadioButton allApptRadio;
+    private Button exitButton;
+
+    @FXML
+    private TableView apptTableview;
+
+    @FXML
+    private RadioButton allApptRadio;
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
@@ -91,11 +97,11 @@ public class AppointmentManagerController implements Initializable {
         apptDescriptionCol.setCellValueFactory(new PropertyValueFactory<>("description"));
         apptLocationCol.setCellValueFactory(new PropertyValueFactory<>("location"));
         typeCol.setCellValueFactory(new PropertyValueFactory<>("type"));
-        startDateTimeCol.setCellValueFactory(new PropertyValueFactory<>("startDateTime"));
-        endDateTimeCol.setCellValueFactory(new PropertyValueFactory<>("endDateTime"));
-        contactCol.setCellValueFactory(new PropertyValueFactory<>("contactID"));
-        CustomerIdCol.setCellValueFactory(new PropertyValueFactory<>("customerID"));
-        userIdCol.setCellValueFactory(new PropertyValueFactory<>("userID"));
+        startDateTimeCol.setCellValueFactory(new PropertyValueFactory<>("formattedStartDateTime"));
+        endDateTimeCol.setCellValueFactory(new PropertyValueFactory<>("formattedEndDateTime"));
+        contactCol.setCellValueFactory(new PropertyValueFactory<>("contactName"));
+        CustomerIdCol.setCellValueFactory(new PropertyValueFactory<>("customerName"));
+        userIdCol.setCellValueFactory(new PropertyValueFactory<>("userName"));
         try {
             apptTableview.setItems(appointmentDAO.getAppointments("All"));
         } catch (SQLException | ClassNotFoundException | ParseException e) {
@@ -129,5 +135,53 @@ public class AppointmentManagerController implements Initializable {
         stage.setScene(scene);
 
         stage.show();
+    }
+
+    public void toAddEditAppointment(ActionEvent actionEvent) throws IOException {
+        if (actionEvent.getTarget().toString().contains("Edit Appointment")) {
+            AppointmentDAOImpl.selectedAppointment = (Appointment) apptTableview.getSelectionModel().getSelectedItem();
+        }
+        if (actionEvent.getSource().toString().contains("Edit Apopintment") && AppointmentDAOImpl.selectedAppointment == null) {
+            Alert unselectedPartAlert = new Alert(Alert.AlertType.ERROR);
+            unselectedPartAlert.setHeaderText("Must select an appointment");
+            unselectedPartAlert.showAndWait();
+            return;
+        }
+        Parent root = FXMLLoader.load(getClass().getResource("/view/AddEditAppointment.fxml"));
+
+        Stage stage = (Stage) ((Node) actionEvent.getSource()).getScene().getWindow();
+
+        Scene scene = new Scene(root, 600, 768);
+
+        stage.setResizable(false);
+
+        stage.setScene(scene);
+
+        stage.show();
+    }
+
+    public void cancelAppt(ActionEvent actionEvent) throws SQLException, ClassNotFoundException, ParseException {
+        AppointmentDAOImpl.selectedAppointment = (Appointment) apptTableview.getSelectionModel().getSelectedItem();
+        if (actionEvent.getSource().toString().contains("Edit Apopintment") && AppointmentDAOImpl.selectedAppointment == null) {
+            Alert unselectedPartAlert = new Alert(Alert.AlertType.ERROR);
+            unselectedPartAlert.setHeaderText("Must select an appointment");
+            unselectedPartAlert.showAndWait();
+            return;
+        }
+        boolean result = appointmentDAO.deleteAppointment(AppointmentDAOImpl.selectedAppointment.getAppointmentID());
+        //Show deletion success/failure dialog
+        if (result) {
+            Alert successAlert = new Alert(Alert.AlertType.INFORMATION);
+            successAlert.setTitle("Success");
+            successAlert.setHeaderText("Appointment Canceled Successfully");
+            successAlert.showAndWait();
+            getAppointments(actionEvent);
+        } else if (!result) {
+            Alert failureAlert = new Alert(Alert.AlertType.ERROR);
+            failureAlert.setTitle("Error");
+            failureAlert.setHeaderText("There was a problem canceling appointment with ID " + AppointmentDAOImpl.selectedAppointment.getAppointmentID());
+            failureAlert.showAndWait();
+        }
+        AppointmentDAOImpl.selectedAppointment = null;
     }
 }

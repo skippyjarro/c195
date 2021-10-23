@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<AnchorPane prefHeight="768.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/11.0.2" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.AddEditAppointmentController">
+   <children>
+      <VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="768.0" prefWidth="600.0" spacing="10.0" AnchorPane.bottomAnchor="20.0" AnchorPane.leftAnchor="20.0" AnchorPane.rightAnchor="20.0" AnchorPane.topAnchor="20.0">
+         <children>
+            <Label text="Add Appointment">
+               <font>
+                  <Font name="System Bold" size="18.0" />
+               </font>
+            </Label>
+            <Label text="Appointment ID" translateY="10.0" />
+            <TextField fx:id="apptIDField" disable="true" editable="false" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefWidth="100.0" promptText="Auto-Generated" />
+            <Label text="Title" translateY="10.0" />
+            <TextField fx:id="apptTitleField" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefWidth="500.0" />
+            <Label text="Description" translateY="10.0" />
+            <TextField fx:id="apptDescriptionField" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefWidth="500.0" />
+            <Label text="Location" translateY="10.0" />
+            <TextField fx:id="apptLocationField" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefWidth="300.0" />
+            <Label text="Contact" translateY="10.0" />
+            <ComboBox fx:id="contactBox" prefWidth="150.0" />
+            <Label text="Type" translateY="10.0" />
+            <TextField fx:id="apptTypeField" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefWidth="200.0" />
+            <Label text="Start Date and Time" translateY="10.0" />
+            <HBox spacing="10.0">
+               <children>
+                  <DatePicker fx:id="startDatePicker" />
+                  <ComboBox fx:id="startHourBox" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefWidth="75.0" />
+                  <ComboBox fx:id="startMinuteBox" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefWidth="75.0" />
+                  <ComboBox fx:id="startAMPMBox" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefWidth="75.0" />
+               </children>
+            </HBox>
+            <Label text="End Date and Time" translateY="10.0" />
+            <HBox layoutX="10.0" layoutY="296.0" spacing="10.0">
+               <children>
+                  <DatePicker fx:id="endDatePicker" />
+                  <ComboBox fx:id="endHourBox" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefWidth="75.0" />
+                  <ComboBox fx:id="endMinuteBox" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefWidth="75.0" />
+                  <ComboBox fx:id="endAMPMBox" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefWidth="75.0" />
+               </children>
+            </HBox>
+            <Label text="Customer" translateY="10.0" />
+            <ComboBox fx:id="customerBox" prefWidth="150.0" />
+            <Label text="User" translateY="10.0" />
+            <ComboBox fx:id="userBox" prefWidth="150.0" />
+            <HBox alignment="CENTER_RIGHT" spacing="20.0" translateY="50.0">
+               <children>
+                  <Button fx:id="saveButton" mnemonicParsing="false" onAction="#saveAppointment" text="Save" />
+                  <Button fx:id="cancelButton" mnemonicParsing="false" onAction="#toAppointmentManager" text="Cancel" />
+               </children>
+            </HBox>
+         </children>
+      </VBox>
+   </children>
+</AnchorPane>

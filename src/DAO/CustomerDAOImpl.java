@@ -2,17 +2,12 @@ package DAO;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import model.Appointment;
 import model.Customer;
 import model.User;
-import utilities.DateTimeUtilities;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.text.ParseException;
-import java.time.*;
-import java.util.Date;
 
 public class CustomerDAOImpl implements CustomerDAO{
     private int customerID;
@@ -45,15 +40,14 @@ public class CustomerDAOImpl implements CustomerDAO{
 
     @Override
     public boolean updateCustomer(int customerID, String customerName, String customerAddress, String customerPostalCode, String customerPhone, int divisionID) throws SQLException, ClassNotFoundException {
-        PreparedStatement statement = JDBC.openConnection().prepareStatement("UPDATE customers SET Customer_Name = ?, Address = ?, Postal_Code = ?, Phone = ?, Last_Update = ?, Last_Updated_By = ?, Division_ID = ? WHERE Customer_ID = ?");
+        PreparedStatement statement = JDBC.openConnection().prepareStatement("UPDATE customers SET Customer_Name = ?, Address = ?, Postal_Code = ?, Phone = ?, Last_Update = NOW(), Last_Updated_By = ?, Division_ID = ? WHERE Customer_ID = ?");
         statement.setString(1, customerName);
         statement.setString(2, customerAddress);
         statement.setString(3, customerPostalCode);
         statement.setString(4, customerPhone);
-        statement.setString(5, DateTimeUtilities.nowToUTCDateTime());
-        statement.setString(6, User.getCurrentUserName());
-        statement.setInt(7, divisionID);
-        statement.setInt(8, customerID);
+        statement.setString(5, User.getCurrentUserName());
+        statement.setInt(6, divisionID);
+        statement.setInt(7, customerID);
         boolean result = Query.sqlUpdate(statement);
         JDBC.closeConnection();
         return result;
@@ -61,16 +55,7 @@ public class CustomerDAOImpl implements CustomerDAO{
 
     @Override
     public boolean deleteCustomer(int customerID) throws SQLException, ClassNotFoundException {
-        PreparedStatement verifyApptStatement = JDBC.openConnection().prepareStatement("SELECT COUNT(*) AS ApptCount FROM appointments WHERE Customer_ID = ?");
-        verifyApptStatement.setInt(1, customerID);
-        ResultSet verifyResult = Query.sqlQuery(verifyApptStatement);
-        while (verifyResult.next()) {
-            if (verifyResult.getInt("ApptCount") > 0) {
-                JDBC.closeConnection();
-                return false;
-            }
-        }
-        PreparedStatement deleteStatement = JDBC.connection.prepareStatement("DELETE FROM customers WHERE Customer_ID = ?");
+        PreparedStatement deleteStatement = JDBC.openConnection().prepareStatement("DELETE FROM customers WHERE Customer_ID = ?");
         deleteStatement.setInt(1, customerID);
         Query.sqlUpdate(deleteStatement);
         JDBC.closeConnection();
@@ -79,18 +64,43 @@ public class CustomerDAOImpl implements CustomerDAO{
 
     @Override
     public boolean addCustomer(String customerName, String customerAddress, String customerPostalCode, String customerPhone, int divisionID) throws SQLException, ClassNotFoundException {
-        PreparedStatement statement = JDBC.openConnection().prepareStatement("INSERT INTO customers(Customer_Name, Address, Postal_Code, Phone, Create_Date, Created_By, Last_Update, Last_Updated_By, Division_ID) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
+        PreparedStatement statement = JDBC.openConnection().prepareStatement("INSERT INTO customers(Customer_Name, Address, Postal_Code, Phone, Create_Date, Created_By, Last_Update, Last_Updated_By, Division_ID) VALUES (?, ?, ?, ?, NOW(), ?, NOW(), ?, ?)");
         statement.setString(1, customerName);
         statement.setString(2, customerAddress);
         statement.setString(3, customerPostalCode);
         statement.setString(4, customerPhone);
-        statement.setString(5, DateTimeUtilities.nowToUTCDateTime());
+        statement.setString(5, User.getCurrentUserName());
         statement.setString(6, User.getCurrentUserName());
-        statement.setString(7, DateTimeUtilities.nowToUTCDateTime());
-        statement.setString(8, User.getCurrentUserName());
-        statement.setInt(9, divisionID);
+        statement.setInt(7, divisionID);
         boolean result = Query.sqlUpdate(statement);
         JDBC.closeConnection();
         return result;
+    }
+
+    @Override
+    public ObservableList<String> getCustomerNames() throws SQLException, ClassNotFoundException {
+        ObservableList<String> allCustomers = FXCollections.observableArrayList();
+        PreparedStatement statement = JDBC.openConnection().prepareStatement("SELECT Customer_Name FROM customers");
+        ResultSet result = Query.sqlQuery(statement);
+        while (result.next()) {
+            customerName = result.getString("Customer_Name");
+            allCustomers.add(customerName);
+        }
+        JDBC.closeConnection();
+        return allCustomers;
+    }
+
+    @Override
+    public int getCustomerIDByName(String name) throws SQLException, ClassNotFoundException {
+        int custID = 0;
+        PreparedStatement statement = JDBC.openConnection().prepareStatement("SELECT Customer_ID FROM customers WHERE Customer_Name = ?");
+        statement.setString(1, name);
+        ResultSet resultSet = Query.sqlQuery(statement);
+        while (resultSet.next()) {
+            custID = resultSet.getInt("Customer_ID");
+        }
+        System.out.println(custID);
+        JDBC.closeConnection();
+        return custID;
     }
 }

@@ -1,13 +1,14 @@
 package model;
 
 public class User {
-    private static int currentUserId;
     private int userID;
+    private String userName;
+    private static int currentUserId;
     private static String currentUserName;
 
     public User(int userID, String userName) {
         this.userID = userID;
-        this.currentUserName = userName;
+        this.userName = userName;
     }
 
     public static int getCurrentUserId() {
@@ -18,14 +19,6 @@ public class User {
         currentUserId = sessionUserId;
     }
 
-    public int getUserID() {
-        return userID;
-    }
-
-    public void setUserID(int userID) {
-        this.userID = userID;
-    }
-
     public static String getCurrentUserName() {
         return currentUserName;
     }
@@ -34,4 +27,16 @@ public class User {
         currentUserName = username;
     }
 
+    @Override
+    public String toString() {
+        return this.userName;
+    }
+
+    public String getUserName() {
+        return userName;
+    }
+
+    public void setUserName(String userName) {
+        this.userName = userName;
+    }
 }

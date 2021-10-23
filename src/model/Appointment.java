@@ -1,18 +1,25 @@
 package model;
 
+import java.time.LocalDateTime;
+
 public class Appointment {
     private int appointmentID;
     private String title;
     private String description;
     private String location;
     private String type;
-    private String startDateTime;
-    private String endDateTime;
+    private LocalDateTime startDateTime;
+    private LocalDateTime endDateTime;
+    private String formattedStartDateTime;
+    private String formattedEndDateTime;
     private int customerID;
-    private String contactID;
+    private String customerName;
+    private int contactID;
+    private String contactName;
     private int userID;
+    private String userName;
 
-    public Appointment(int appointmentID, String title, String description, String location, String type, String startDateTime, String endDateTime, int customerID, int userID, String contactID) {
+    public Appointment(int appointmentID, String title, String description, String location, String type, LocalDateTime startDateTime, LocalDateTime endDateTime, String formattedStartDateTime, String formattedEndDateTime, int customerID, String customerName, int contactID, String contactName, int userID, String userName) {
         this.appointmentID = appointmentID;
         this.title = title;
         this.description = description;
@@ -20,9 +27,14 @@ public class Appointment {
         this.type = type;
         this.startDateTime = startDateTime;
         this.endDateTime = endDateTime;
+        this.formattedStartDateTime = formattedStartDateTime;
+        this.formattedEndDateTime = formattedEndDateTime;
         this.customerID = customerID;
+        this.customerName = customerName;
         this.userID = userID;
         this.contactID = contactID;
+        this.contactName = contactName;
+        this.userName = userName;
     }
 
     public int getAppointmentID() {
@@ -65,19 +77,19 @@ public class Appointment {
         this.type = type;
     }
 
-    public String getStartDateTime() {
+    public LocalDateTime getStartDateTime() {
         return startDateTime;
     }
 
-    public void setStartDateTime(String startDateTime) {
+    public void setStartDateTime(LocalDateTime startDateTime) {
         this.startDateTime = startDateTime;
     }
 
-    public String getEndDateTime() {
+    public LocalDateTime getEndDateTime() {
         return endDateTime;
     }
 
-    public void setEndDateTime(String endDateTime) {
+    public void setEndDateTime(LocalDateTime endDateTime) {
         this.endDateTime = endDateTime;
     }
 
@@ -89,11 +101,11 @@ public class Appointment {
         this.customerID = customerID;
     }
 
-    public String getContactID() {
+    public int getContactID() {
         return contactID;
     }
 
-    public void setContactID(String contactID) {
+    public void setContactID(int contactID) {
         this.contactID = contactID;
     }
 
@@ -103,5 +115,45 @@ public class Appointment {
 
     public void setUserID(int userID) {
         this.userID = userID;
+    }
+
+    public String getFormattedStartDateTime() {
+        return formattedStartDateTime;
+    }
+
+    public void setFormattedStartDateTime(String formattedStartDateTime) {
+        this.formattedStartDateTime = formattedStartDateTime;
+    }
+
+    public String getFormattedEndDateTime() {
+        return formattedEndDateTime;
+    }
+
+    public void setFormattedEndDateTime(String formattedEndDateTime) {
+        this.formattedEndDateTime = formattedEndDateTime;
+    }
+
+    public String getCustomerName() {
+        return customerName;
+    }
+
+    public void setCustomerName(String customerName) {
+        this.customerName = customerName;
+    }
+
+    public String getContactName() {
+        return contactName;
+    }
+
+    public void setContactName(String contactName) {
+        this.contactName = contactName;
+    }
+
+    public String getUserName() {
+        return userName;
+    }
+
+    public void setUserName(String userName) {
+        this.userName = userName;
     }
 }

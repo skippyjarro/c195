@@ -3,44 +3,55 @@ package DAO;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import model.Appointment;
+import model.User;
 import utilities.DateTimeUtilities;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.text.ParseException;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 public class AppointmentDAOImpl implements AppointmentDAO {
-    DateTimeFormatter formatter;
+    public static ObservableList<Appointment> appointmentObservableList = FXCollections.observableArrayList();
+    public static Appointment selectedAppointment;
+    private DateTimeFormatter formatter;
+    private CustomerDAOImpl customerDAO;
+    private ContactDAOImpl contactDAO;
+    private UserDAOImpl userDAO;
     private int apptID;
     private String title;
     private String description;
     private String location;
-    private String contact;
     private String type;
-    private String start;
-    private String end;
+    private LocalDateTime start;
+    private LocalDateTime end;
+    private String formattedStartDateTime;
+    private String formattedEndDateTime;
+    private Timestamp startTS;
+    private Timestamp endTS;
     private int customerID;
+    private String customerName;
     private int userID;
+    private String userName;
+    private int contactID;
+    private String contactName;
 
 
     @Override
     public ObservableList<Appointment> getAppointments(String radioSelection) throws SQLException, ClassNotFoundException, ParseException {
+        appointmentObservableList.clear();
         formatter = DateTimeFormatter.ofPattern("MMM dd yyyy h:mm a z");
-        ObservableList<Appointment> allAppointments = FXCollections.observableArrayList();
-        String queryString = "SELECT * FROM appointments JOIN contacts c on appointments.Contact_ID = c.Contact_ID";
+        String queryString = "SELECT * FROM appointments JOIN contacts c on appointments.Contact_ID = c.Contact_ID JOIN customers c2 on appointments.Customer_ID = c2.Customer_ID JOIN users u on appointments.User_ID = u.User_ID";
         PreparedStatement statement;
         if (radioSelection.contains("Week")) {
-            queryString += " WHERE ? = ?";
+            queryString += " WHERE WEEK(START) = WEEK(NOW())";
             statement = JDBC.openConnection().prepareStatement(queryString);
-            statement.setString(1, "WEEK(Start)");
-            statement.setString(2, "WEEK(GetDate())");
         } else if (radioSelection.contains("Month")) {
-            queryString += " WHERE ? = ?";
+            queryString += " WHERE MONTH(START) = MONTH(NOW())";
             statement = JDBC.openConnection().prepareStatement(queryString);
-            statement.setString(1, "MONTH(Start)");
-            statement.setString(2, "MONTH(GetDate())");
         } else {
             statement = JDBC.openConnection().prepareStatement(queryString);
         }
@@ -50,30 +61,96 @@ public class AppointmentDAOImpl implements AppointmentDAO {
             title = result.getString("Title");
             description = result.getString("Description");
             location = result.getString("Location");
-            contact = result.getString("Contact_Name");
+            contactName = result.getString("Contact_Name");
+            contactID = result.getInt("Contact_ID");
             type = result.getString("Type");
-            start = DateTimeUtilities.convertToLocalDateTime(result.getDate("Start").toLocalDate(), result.getTime("Start").toLocalTime());
-            end = DateTimeUtilities.convertToLocalDateTime(result.getDate("End").toLocalDate(), result.getTime("End").toLocalTime());
+            start = result.getTimestamp("Start").toLocalDateTime();
+            end = result.getTimestamp("End").toLocalDateTime();
+            formattedStartDateTime = DateTimeUtilities.getFormattedDateTime(start);
+            formattedEndDateTime = DateTimeUtilities.getFormattedDateTime(end);
             customerID = result.getInt("Customer_ID");
+            customerName = result.getString("Customer_Name");
             userID = result.getInt("User_ID");
-            allAppointments.add(new Appointment(apptID, title, description, location, type, start, end, customerID, userID, contact));
+            userName = result.getString("User_Name");
+            appointmentObservableList.add(new Appointment(apptID, title, description, location, type, start, end, formattedStartDateTime, formattedEndDateTime, customerID, customerName, contactID, contactName, userID, userName));
         }
         JDBC.closeConnection();
-        return allAppointments;
+        return appointmentObservableList;
     }
 
     @Override
-    public void updateAppointment(Appointment appt) {
+    public boolean getCustomerAppointments(int custID) throws SQLException, ClassNotFoundException {
+        boolean result = false;
+        PreparedStatement verifyApptStatement = JDBC.openConnection().prepareStatement("SELECT COUNT(*) AS ApptCount FROM appointments WHERE Customer_ID = ?");
+        verifyApptStatement.setInt(1, custID);
+        ResultSet verifyResult = Query.sqlQuery(verifyApptStatement);
+        while (verifyResult.next()) {
+            if (verifyResult.getInt("ApptCount") > 0) {
+                result = true;
+            }
+        }
+        JDBC.closeConnection();
+        return result;
+    }
 
+
+    @Override
+    public boolean updateAppointment(int newApptID, String apptTitle, String apptDesc, String apptLocation, String apptType, String startDate, String startHour, String startMinute, String startAMPM, String endDate, String endHour, String endMinute, String endAMPM, String customerName, String username, String contactName) throws SQLException, ClassNotFoundException {
+        customerDAO = new CustomerDAOImpl();
+        userDAO = new UserDAOImpl();
+        contactDAO = new ContactDAOImpl();
+        Timestamp startTS = Timestamp.valueOf(DateTimeUtilities.convertInputToLocalDateTime(startDate, startHour, startMinute, startAMPM));
+        Timestamp endTS = Timestamp.valueOf(DateTimeUtilities.convertInputToLocalDateTime(endDate, endHour, endMinute, endAMPM));
+        PreparedStatement updateStatement = JDBC.openConnection().prepareStatement("UPDATE appointments SET Title = ?, Description = ?, Location = ?, Type = ?, Start = ?, End = ?, Last_Update = NOW(), Last_Updated_By = ?, Customer_ID = ?, User_ID = ?, Contact_ID = ? WHERE Appointment_ID = ?");
+        updateStatement.setString(1, apptTitle);
+        updateStatement.setString(2, apptDesc);
+        updateStatement.setString(3, apptLocation);
+        updateStatement.setString(4, apptType);
+        updateStatement.setTimestamp(5, startTS);
+        updateStatement.setTimestamp(6, endTS);
+        updateStatement.setString(7, User.getCurrentUserName());
+        updateStatement.setInt(8, customerDAO.getCustomerIDByName(customerName));
+        updateStatement.setInt(9, userDAO.getUserIDByName(username));
+        updateStatement.setInt(10, contactDAO.getContactIDByName(contactName));
+        updateStatement.setInt(11, newApptID);
+        boolean result = Query.sqlUpdate(updateStatement);
+        JDBC.closeConnection();
+        return result;
     }
 
     @Override
-    public void deleteAppointment(Appointment appt) {
-
+    public boolean deleteAppointment(int apptID) throws SQLException, ClassNotFoundException {
+        PreparedStatement statement = JDBC.openConnection().prepareStatement("DELETE FROM appointments WHERE Appointment_ID = ?");
+        statement.setInt(1, apptID);
+        boolean result = Query.sqlUpdate(statement);
+        JDBC.closeConnection();
+        return result;
     }
 
     @Override
-    public void addAppointment(Appointment appt) {
-
+    public boolean addAppointment(String apptTitle, String apptDesc, String apptLocation, String apptType, String startDate, String startHour, String startMinute, String startAMPM, String endDate, String endHour, String endMinute, String endAMPM, String newCustomerName, String newContactName, String newUserName) throws SQLException, ClassNotFoundException {
+        customerDAO = new CustomerDAOImpl();
+        contactDAO = new ContactDAOImpl();
+        userDAO = new UserDAOImpl();
+        customerID = customerDAO.getCustomerIDByName(newCustomerName);
+        contactID = contactDAO.getContactIDByName(newContactName);
+        userID = userDAO.getUserIDByName(newUserName);
+        startTS = Timestamp.valueOf(DateTimeUtilities.convertInputToLocalDateTime(startDate, startHour, startMinute, startAMPM));
+        endTS = Timestamp.valueOf(DateTimeUtilities.convertInputToLocalDateTime(endDate, endHour, endMinute, endAMPM));
+        PreparedStatement addStatement = JDBC.connection.prepareStatement("INSERT INTO appointments(Title, Description, Location, Type, Start, End, Create_Date, Created_By, Last_Update, Last_Updated_By, Customer_ID, User_ID, Contact_ID) VALUES (?, ?, ?, ?, ?, ?, NOW(), ?, NOW(), ?, ?, ?, ?)");
+        addStatement.setString(1, apptTitle);
+        addStatement.setString(2, apptDesc);
+        addStatement.setString(3, apptLocation);
+        addStatement.setString(4, apptType);
+        addStatement.setTimestamp(5, startTS);
+        addStatement.setTimestamp(6, endTS);
+        addStatement.setString(7, User.getCurrentUserName());
+        addStatement.setString(8, User.getCurrentUserName());
+        addStatement.setInt(9, customerID);
+        addStatement.setInt(10, userID);
+        addStatement.setInt(11, contactID);
+        boolean result = Query.sqlUpdate(addStatement);
+        JDBC.closeConnection();
+        return result;
     }
 }

@@ -31,22 +31,23 @@
             </HBox>
             <TableView fx:id="apptTableview">
               <columns>
-                <TableColumn fx:id="apptIdCol" maxWidth="100.0" minWidth="100.0" prefWidth="100.0" text="Appointment ID" />
-                <TableColumn fx:id="apptTitleCol" maxWidth="120.0" minWidth="120.0" prefWidth="120.0" text="Title" />
-                  <TableColumn fx:id="apptDescriptionCol" maxWidth="200.0" minWidth="200.0" prefWidth="200.0" text="Description" />
-                  <TableColumn fx:id="apptLocationCol" maxWidth="120.0" minWidth="120.0" prefWidth="120.0" text="Location" />
-                <TableColumn fx:id="contactCol" maxWidth="100.0" minWidth="100.0" prefWidth="100.0" text="Contact" />
-                <TableColumn fx:id="typeCol" maxWidth="120.0" minWidth="120.0" prefWidth="120.0" text="Type" />
-                  <TableColumn fx:id="startDateTimeCol" maxWidth="160.0" minWidth="160.0" prefWidth="160.0" text="Start Date and Time" />
-                  <TableColumn fx:id="endDateTimeCol" maxWidth="160.0" minWidth="160.0" prefWidth="160.0" text="End Date and Time" />
-                  <TableColumn fx:id="CustomerIdCol" prefWidth="75.0" text="Customer ID" />
-                  <TableColumn fx:id="userIdCol" prefWidth="75.0" text="User ID" />
+                <TableColumn fx:id="apptIdCol" maxWidth="100.0" minWidth="100.0" prefWidth="100.0" resizable="false" text="Appointment ID" />
+                <TableColumn fx:id="apptTitleCol" maxWidth="120.0" minWidth="120.0" prefWidth="120.0" resizable="false" text="Title" />
+                  <TableColumn fx:id="apptDescriptionCol" maxWidth="200.0" minWidth="200.0" prefWidth="200.0" resizable="false" text="Description" />
+                  <TableColumn fx:id="apptLocationCol" maxWidth="120.0" minWidth="120.0" prefWidth="120.0" resizable="false" text="Location" />
+                <TableColumn fx:id="contactCol" maxWidth="110.0" minWidth="110.0" prefWidth="110.0" resizable="false" text="Contact" />
+                <TableColumn fx:id="typeCol" maxWidth="120.0" minWidth="120.0" prefWidth="120.0" resizable="false" text="Type" />
+                  <TableColumn fx:id="startDateTimeCol" maxWidth="170.0" minWidth="170.0" prefWidth="170.0" resizable="false" text="Start Date and Time" />
+                  <TableColumn fx:id="endDateTimeCol" maxWidth="170.0" minWidth="170.0" prefWidth="170.0" resizable="false" text="End Date and Time" />
+                  <TableColumn fx:id="CustomerIdCol" maxWidth="110.0" minWidth="110.0" prefWidth="110.0" resizable="false" text="Customer" />
+                  <TableColumn fx:id="userIdCol" maxWidth="100.0" minWidth="100.0" prefWidth="100.0" resizable="false" text="User" />
               </columns>
             </TableView>
             <HBox alignment="CENTER_RIGHT" spacing="20.0" translateY="-40.0">
                <children>
-                  <Button fx:id="addApptButton" mnemonicParsing="false" text="Add Appointment" />
-                  <Button fx:id="deleteApptButton" mnemonicParsing="false" text="Delete Appointment" />
+                  <Button fx:id="addApptButton" mnemonicParsing="false" onAction="#toAddEditAppointment" text="Add Appointment" />
+                  <Button fx:id="editButton" mnemonicParsing="false" onAction="#toAddEditAppointment" text="Edit Appointment" />
+                  <Button fx:id="deleteApptButton" mnemonicParsing="false" onAction="#cancelAppt" text="Cancel Appointment" />
                </children>
             </HBox>
             <HBox alignment="CENTER_RIGHT">

@@ -3,7 +3,7 @@ package utilities;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
 
-public class DateTimeUtilities {
+public abstract class DateTimeUtilities {
     private static DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMM d yyyy h:mm a z");
     private static LocalDate date;
     private static LocalTime time;
@@ -11,20 +11,33 @@ public class DateTimeUtilities {
     private static ZonedDateTime zonedDateTime;
     private static String formattedDateTime;
 
-    public static String convertToLocalDateTime(LocalDate localDate, LocalTime localTime) {
-        date = localDate;
-        time = localTime;
-        localDateTime = LocalDateTime.of(date, time);
-        zonedDateTime = ZonedDateTime.of(localDateTime, ZoneId.systemDefault());
-        formattedDateTime = zonedDateTime.ofInstant(zonedDateTime.toInstant(), ZoneId.systemDefault()).format(formatter);
-        return formattedDateTime;
+    public static LocalTime convertToEasternTime(String date, String hour, String minute, String amPM) {
+        LocalDateTime localDateTime;
+        LocalDate localDate = LocalDate.parse(date);
+        LocalTime localTime = LocalTime.of(Integer.parseInt(hour), Integer.parseInt(minute));
+        if (amPM.equals("PM") && (Integer.parseInt(hour) < 12)) {
+            localTime = localTime.plusHours(12);
+        }
+        localDateTime = LocalDateTime.of(localDate, localTime);
+        LocalTime newLocalTime = localDateTime.atZone(ZoneId.systemDefault()).withZoneSameInstant(ZoneId.of("America/New_York")).toLocalTime();
+        return newLocalTime;
     }
 
-    public static String nowToUTCDateTime() {
-        LocalDateTime localDateTime = LocalDateTime.now(ZoneId.of("UTC"));
-        LocalDate localDate = localDateTime.toLocalDate();
-        LocalTime localTime = localDateTime.toLocalTime();
-        String dateTimeString = localDate.toString() + " " + localTime.toString();
-        return dateTimeString;
+
+    public static LocalDateTime convertInputToLocalDateTime(String stringDate, String stringHour, String stringMin, String amPM) {
+        date = LocalDate.parse(stringDate);
+        LocalDateTime localDateTime;
+        if (amPM.equals("PM") && (Integer.parseInt(stringHour) < 12)) {
+            time = LocalTime.of(Integer.parseInt(stringHour), Integer.parseInt(stringMin)).plusHours(12);
+        } else {
+            time = LocalTime.of(Integer.parseInt(stringHour), Integer.parseInt(stringMin));
+        }
+        localDateTime = LocalDateTime.of(date, time);
+        return localDateTime;
+    }
+
+    public static String getFormattedDateTime(LocalDateTime localDateTime) {
+        formattedDateTime = ZonedDateTime.of(localDateTime, ZoneId.systemDefault()).format(formatter);
+        return formattedDateTime;
     }
 }
