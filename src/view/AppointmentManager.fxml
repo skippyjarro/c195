@@ -50,9 +50,10 @@
                   <Button fx:id="deleteApptButton" mnemonicParsing="false" onAction="#cancelAppt" text="Cancel Appointment" />
                </children>
             </HBox>
-            <HBox alignment="CENTER_RIGHT">
+            <HBox alignment="CENTER_RIGHT" spacing="20.0" translateY="-70.0">
                <children>
-                  <Button fx:id="manageCustomersButton" mnemonicParsing="false" onAction="#toManageCustomers" text="Manage Customers" translateY="-70.0" />
+                  <Button fx:id="manageCustomersButton" mnemonicParsing="false" onAction="#toManageCustomers" text="Manage Customers" />
+                  <Button fx:id="reportsButton" layoutX="1217.0" layoutY="10.0" mnemonicParsing="false" onAction="#toReports" text="Reports" />
                </children>
             </HBox>
             <Button fx:id="exitButton" alignment="TOP_LEFT" mnemonicParsing="false" onAction="#exitProgram" text="Exit" translateX="1280.0" />

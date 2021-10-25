@@ -154,15 +154,10 @@ public class ManageCustomersController implements Initializable {
      */
     public void toAppointmentManager(javafx.event.ActionEvent actionEvent) throws IOException {
         Parent root = FXMLLoader.load(getClass().getResource("/view/AppointmentManager.fxml"));
-
         Stage stage = (Stage) ((Node) actionEvent.getSource()).getScene().getWindow();
-
         Scene scene = new Scene(root, 1366, 768);
-
         stage.setResizable(false);
-
         stage.setScene(scene);
-
         stage.show();
     }
 

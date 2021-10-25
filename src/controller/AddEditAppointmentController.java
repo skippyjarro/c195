@@ -55,6 +55,8 @@ public class AddEditAppointmentController implements Initializable {
     private String userName;
     private LocalDateTime startDateTime;
     private LocalDateTime endDateTime;
+    String[] apptTypesArray;
+    ObservableList<String> apptTypesList;
 
     @FXML
     private TextField apptIDField;
@@ -72,7 +74,7 @@ public class AddEditAppointmentController implements Initializable {
     private ComboBox contactBox;
 
     @FXML
-    private TextField apptTypeField;
+    private ComboBox apptTypeBox;
 
     @FXML
     private DatePicker startDatePicker;
@@ -116,9 +118,11 @@ public class AddEditAppointmentController implements Initializable {
         contactDAO = new ContactDAOImpl();
         customerDAO = new CustomerDAOImpl();
         userDAO = new UserDAOImpl();
+        apptTypesArray = new String[]{"Planning Session", "De-Briefing", "Support", "Other"};
         hoursArray = new String[]{"1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"};
-        minutesArray = new String[]{"00", "15", "30", "45"};
+        minutesArray = new String[]{"00", "30"};
         amPMArray = new String[]{"AM", "PM"};
+        apptTypesList = FXCollections.observableArrayList(apptTypesArray);
         hoursList = FXCollections.observableArrayList(hoursArray);
         minutesList = FXCollections.observableArrayList(minutesArray);
         amPMList = FXCollections.observableArrayList(amPMArray);
@@ -132,13 +136,14 @@ public class AddEditAppointmentController implements Initializable {
             e.printStackTrace();
         }
 
-        //Populate Hours, Minutes, and AM/PM boxes
+        //Populate types, Hours, Minutes, and AM/PM boxes
         startHourBox.setItems(hoursList);
         startMinuteBox.setItems(minutesList);
         startAMPMBox.setItems(amPMList);
         endHourBox.setItems(hoursList);
         endMinuteBox.setItems(minutesList);
         endAMPMBox.setItems(amPMList);
+        apptTypeBox.setItems(apptTypesList);
 
         //Populate fields if modifying appointment
         if (AppointmentDAOImpl.selectedAppointment != null) {
@@ -153,7 +158,7 @@ public class AddEditAppointmentController implements Initializable {
             } catch (SQLException | ClassNotFoundException e) {
                 e.printStackTrace();
             }
-            apptTypeField.setText(AppointmentDAOImpl.selectedAppointment.getType());
+            apptTypeBox.getSelectionModel().select(AppointmentDAOImpl.selectedAppointment.getType());
             startDatePicker.setValue(startDateTime.toLocalDate());
             if (startDateTime.getHour() >= 12) {
                 if (startDateTime.getHour() > 12) {
@@ -199,7 +204,7 @@ public class AddEditAppointmentController implements Initializable {
         apptTitle = apptTitleField.getText();
         apptDesc = apptDescriptionField.getText();
         apptLocation = apptLocationField.getText();
-        apptType = apptTypeField.getText();
+        apptType = apptTypeBox.getSelectionModel().getSelectedItem().toString();
         startDate = startDatePicker.getValue().toString();
         startHour = startHourBox.getSelectionModel().getSelectedItem().toString();
         startMinute = startMinuteBox.getSelectionModel().getSelectedItem().toString();
@@ -212,6 +217,16 @@ public class AddEditAppointmentController implements Initializable {
         contactName = contactBox.getSelectionModel().getSelectedItem().toString();
         userName = userBox.getSelectionModel().getSelectedItem().toString();
 
+        //check to see if start date/time is after end date/time
+        if (apptTimeValidation(startDate, startHour, startMinute, startAMPM, endDate, endHour, endMinute, endAMPM)) {
+            Alert failureAlert = new Alert(Alert.AlertType.ERROR);
+            failureAlert.setTitle("Error");
+            failureAlert.setHeaderText("Start date/time must be before End date/time");
+            failureAlert.showAndWait();
+            return;
+        }
+
+        //Check if apptID field is empty as proxy for checking if adding vs updating an appointment
         if (apptIDField.getText().isEmpty()) {
             apptID = -1;
         } else {
@@ -265,15 +280,10 @@ public class AddEditAppointmentController implements Initializable {
     public void toAppointmentManager(javafx.event.ActionEvent actionEvent) throws IOException {
         AppointmentDAOImpl.selectedAppointment = null;
         Parent root = FXMLLoader.load(getClass().getResource("/view/AppointmentManager.fxml"));
-
         Stage stage = (Stage) ((Node) actionEvent.getSource()).getScene().getWindow();
-
         Scene scene = new Scene(root, 1366, 768);
-
         stage.setResizable(false);
-
         stage.setScene(scene);
-
         stage.show();
     }
 
@@ -291,25 +301,48 @@ public class AddEditAppointmentController implements Initializable {
     private boolean checkOverlappingAppts(int custID, int newApptID, String newStartDate, String newStartHour, String newStartMinute, String newStartAMPM, String newEndDate, String newEndHour, String newEndMinute, String newEndAMPM) {
         LocalDateTime startDateTime = DateTimeUtilities.convertInputToLocalDateTime(newStartDate, newStartHour, newStartMinute, newStartAMPM);
         LocalDateTime endDateTime = DateTimeUtilities.convertInputToLocalDateTime(newEndDate, newEndHour, newEndMinute, newEndAMPM);
-        LocalDate startLocalDate = startDateTime.toLocalDate();
-        LocalDate endLocalDate = endDateTime.toLocalDate();
-        LocalTime startLocalTime = startDateTime.toLocalTime();
-        LocalTime endLocalTime = endDateTime.toLocalTime();
         for (Appointment appt : AppointmentDAOImpl.appointmentObservableList) {
             int apptID = appt.getAppointmentID();
-            if (newApptID == apptID) {
+            if ((newApptID == apptID) || (appt.getCustomerID() != custID)) {
                 continue;
             }
             LocalDateTime apptStartDateTime = appt.getStartDateTime();
             LocalDateTime apptEndDateTime = appt.getEndDateTime();
-            LocalDate apptStartDate = apptStartDateTime.toLocalDate();
-            LocalDate apptEndDate = apptEndDateTime.toLocalDate();
-            LocalTime apptStartTime = apptStartDateTime.toLocalTime();
-            LocalTime apptEndTime = apptEndDateTime.toLocalTime();
-            if ((appt.getCustomerID() == custID) && (apptStartDate.isEqual(startLocalDate) || apptEndDate.isEqual(endLocalDate)) && (startLocalTime.equals(apptStartTime) || endLocalTime.equals(apptEndTime) || (startLocalTime.equals(apptStartTime) || startLocalTime.isBefore(apptStartTime)) && (endLocalTime.equals(apptEndTime) || endLocalTime.isAfter(apptEndTime))) || (startLocalTime.isAfter(apptStartTime) && startLocalTime.isBefore(apptEndTime)) || (endLocalTime.isAfter(apptStartTime) && endLocalTime.isBefore(apptEndTime))) {
+            if (startDateTime.isBefore(apptStartDateTime) && endDateTime.isAfter(apptEndDateTime)) {
+                return true;
+            } else if ((startDateTime.equals(apptStartDateTime) || startDateTime.isAfter(apptStartDateTime)) && startDateTime.isBefore(apptEndDateTime)) {
+                return true;
+            } else if (endDateTime.isAfter(apptStartDateTime) && ((endDateTime.isBefore(apptEndDateTime) || endDateTime.equals(apptEndDateTime)))) {
                 return true;
             }
         }
         return false;
+    }
+
+
+    public void autofillEndDate(ActionEvent actionEvent) {
+        LocalDate startDate = startDatePicker.getValue();
+        LocalDate endDate = endDatePicker.getValue();
+        if ((endDatePicker.getValue() == null) || endDate.isBefore(startDate)) {
+            endDatePicker.setValue(startDate);
+        }
+    }
+
+    public void autofillStartDate(ActionEvent actionEvent) {
+        LocalDate startDate = startDatePicker.getValue();
+        LocalDate endDate = endDatePicker.getValue();
+        if ((startDatePicker.getValue() == null) || startDate.isAfter(endDate)) {
+            startDatePicker.setValue(endDate);
+        }
+    }
+
+    private boolean apptTimeValidation(String startDate, String startHour, String startMinute, String startAMPM, String endDate, String endHour, String endMinute, String endAMPM) {
+        boolean result = false;
+        LocalDateTime startDateTime = DateTimeUtilities.convertInputToLocalDateTime(startDate, startHour, startMinute, startAMPM);
+        LocalDateTime endDateTime = DateTimeUtilities.convertInputToLocalDateTime(endDate, endHour, endMinute, endAMPM);
+        if (endDateTime.isBefore(startDateTime) || endDateTime.equals(startDateTime)) {
+            result = true;
+        }
+        return result;
     }
 }

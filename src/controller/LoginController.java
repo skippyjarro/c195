@@ -26,11 +26,10 @@ import java.util.Locale;
 import java.util.ResourceBundle;
 
 public class LoginController implements Initializable {
+    public static boolean firstLogin;
     ResourceBundle rb;
 
     File login_activity;
-
-    LocalDateTime localDateTime;
 
     @FXML
     private Label title;
@@ -61,6 +60,7 @@ public class LoginController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
+        firstLogin = true;
         rb = ResourceBundle.getBundle("Localization/Bundle", Locale.getDefault());
         title.setText(rb.getString("title"));
         usernameLabel.setText(rb.getString("username"));
@@ -120,15 +120,10 @@ public class LoginController implements Initializable {
      */
     private void toAppointmentManager(javafx.event.ActionEvent actionEvent) throws IOException {
         Parent root = FXMLLoader.load(getClass().getResource("/view/AppointmentManager.fxml"));
-
         Stage stage = (Stage) ((Node) actionEvent.getSource()).getScene().getWindow();
-
         Scene scene = new Scene(root, 1366, 768);
-
         stage.setResizable(false);
-
         stage.setScene(scene);
-
         stage.show();
     }
 

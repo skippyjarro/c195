@@ -13,14 +13,17 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.Stage;
 import model.Appointment;
 import model.User;
+import utilities.DateTimeUtilities;
 
 import java.io.IOException;
 import java.net.URL;
 import java.sql.SQLException;
 import java.text.ParseException;
+import java.time.LocalDateTime;
 import java.util.ResourceBundle;
 
 public class AppointmentManagerController implements Initializable {
+
     AppointmentDAOImpl appointmentDAO;
 
     @FXML
@@ -86,6 +89,12 @@ public class AppointmentManagerController implements Initializable {
     @FXML
     private RadioButton allApptRadio;
 
+    @FXML
+    private Button reportsButton;
+
+    @FXML
+    private Button deleteApptButton;
+
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         appointmentDAO = new AppointmentDAOImpl();
@@ -106,6 +115,23 @@ public class AppointmentManagerController implements Initializable {
             apptTableview.setItems(appointmentDAO.getAppointments("All"));
         } catch (SQLException | ClassNotFoundException | ParseException e) {
             e.printStackTrace();
+        }
+
+        //Display pop-up with number of appointments upcoming in the next 15 minutes on initial login only
+        if (LoginController.firstLogin) {
+            Appointment upcomingAppt = checkUpcomingAppointments();
+            if (upcomingAppt != null) {
+                Alert successAlert = new Alert(Alert.AlertType.INFORMATION);
+                successAlert.setTitle("Upcoming Appointments");
+                successAlert.setHeaderText("You have an upcoming appointments in the next 15 minutes.\n" + upcomingAppt.getAppointmentID() + " - " + DateTimeUtilities.getFormattedDateTime(upcomingAppt.getStartDateTime()));
+                successAlert.showAndWait();
+            } else {
+                Alert successAlert = new Alert(Alert.AlertType.INFORMATION);
+                successAlert.setTitle("Upcoming Appointments");
+                successAlert.setHeaderText("You have no upcoming appointments in the next 15 minutes.");
+                successAlert.showAndWait();
+            }
+            LoginController.firstLogin = false;
         }
     }
 
@@ -183,5 +209,29 @@ public class AppointmentManagerController implements Initializable {
             failureAlert.showAndWait();
         }
         AppointmentDAOImpl.selectedAppointment = null;
+    }
+
+    private Appointment checkUpcomingAppointments() {
+        Appointment upcomingAppt = null;
+        for (Appointment appt:AppointmentDAOImpl.appointmentObservableList) {
+            if (User.getCurrentUserId() == appt.getUserID() && LocalDateTime.now().plusMinutes(15).isAfter(appt.getStartDateTime()) && appt.getStartDateTime().isAfter(LocalDateTime.now())) {
+                upcomingAppt = appt;
+            }
+        }
+        return upcomingAppt;
+    }
+
+    public void toReports(ActionEvent actionEvent) throws IOException {
+        Parent root = FXMLLoader.load(getClass().getResource("/view/Reports.fxml"));
+
+        Stage stage = (Stage) ((Node) actionEvent.getSource()).getScene().getWindow();
+
+        Scene scene = new Scene(root, 1366, 768);
+
+        stage.setResizable(false);
+
+        stage.setScene(scene);
+
+        stage.show();
     }
 }

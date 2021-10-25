@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="768.0" prefWidth="1366.0" xmlns="http://javafx.com/javafx/11.0.2" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.ReportsController">
+   <children>
+      <VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="768.0" prefWidth="1366.0" spacing="20.0" AnchorPane.bottomAnchor="20.0" AnchorPane.leftAnchor="20.0" AnchorPane.rightAnchor="20.0" AnchorPane.topAnchor="20.0">
+         <children>
+            <Label text="Reports">
+               <font>
+                  <Font name="System Bold" size="18.0" />
+               </font>
+            </Label>
+            <HBox prefHeight="768.0" prefWidth="1366.0" spacing="20.0">
+               <children>
+                  <VBox prefWidth="166.0" spacing="10.0">
+                     <children>
+                        <Label text="Report" translateY="10.0" />
+                        <ComboBox fx:id="reportBox" onAction="#setReportType" prefWidth="150.0" />
+                        <Label fx:id="reportLabel1" text="Label 1" visible="false" />
+                        <ComboBox fx:id="reportBox1" prefWidth="150.0" visible="false" />
+                        <Label fx:id="monthLabel" text="Month" translateY="10.0" visible="false" />
+                        <ComboBox fx:id="monthBox" prefWidth="150.0" visible="false" />
+                        <Label fx:id="apptTypeLabel" text="Appointment Type" translateY="10.0" visible="false" />
+                        <ComboBox fx:id="apptTypeBox" prefWidth="150.0" visible="false" />
+                        <Button fx:id="runReportButton" mnemonicParsing="false" onAction="#runReport" text="Run Report" visible="false" />
+                     </children>
+                  </VBox>
+                  <VBox prefWidth="1200.0">
+                     <children>
+                        <HBox spacing="10.0" translateY="-10.0">
+                           <children>
+                              <Label text="Total Number of Appointments:" />
+                              <Label fx:id="apptCountLabel" text="0" />
+                           </children>
+                        </HBox>
+                         <TableView fx:id="apptTableview" prefHeight="600.0">
+                             <columns>
+                                 <TableColumn fx:id="apptIdCol" maxWidth="50.0" minWidth="50.0" prefWidth="50.0" resizable="false" text="Appt ID" />
+                                 <TableColumn fx:id="apptTitleCol" maxWidth="120.0" minWidth="120.0" prefWidth="120.0" resizable="false" text="Title" />
+                                 <TableColumn fx:id="apptDescriptionCol" maxWidth="150.0" minWidth="150.0" prefWidth="150.0" resizable="false" text="Description" />
+                                 <TableColumn fx:id="apptLocationCol" maxWidth="100.0" minWidth="100.0" prefWidth="100.0" resizable="false" text="Location" />
+                                 <TableColumn fx:id="contactCol" maxWidth="110.0" minWidth="110.0" prefWidth="110.0" resizable="false" text="Contact" />
+                                 <TableColumn fx:id="typeCol" maxWidth="100.0" minWidth="100.0" prefWidth="100.0" resizable="false" text="Type" />
+                                 <TableColumn fx:id="startDateTimeCol" maxWidth="170.0" minWidth="170.0" prefWidth="170.0" resizable="false" text="Start Date and Time" />
+                                 <TableColumn fx:id="endDateTimeCol" maxWidth="170.0" minWidth="170.0" prefWidth="170.0" resizable="false" text="End Date and Time" />
+                                 <TableColumn fx:id="CustomerIdCol" maxWidth="75.0" minWidth="75.0" prefWidth="75.0" resizable="false" text="Customer" />
+                                 <TableColumn fx:id="userIdCol" maxWidth="100.0" minWidth="100.0" prefWidth="100.0" resizable="false" text="User" />
+                             </columns>
+                         </TableView>
+                        <Button fx:id="backButton" mnemonicParsing="false" onAction="#toAppointmentManager" text="Back" translateX="1100.0" translateY="30.0" />
+                     </children>
+                  </VBox>
+               </children>
+            </HBox>
+         </children>
+      </VBox>
+   </children>
+</AnchorPane>
