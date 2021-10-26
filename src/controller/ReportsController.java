@@ -16,13 +16,18 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.Stage;
+import model.Appointment;
 
 import java.io.IOException;
 import java.net.URL;
 import java.sql.SQLException;
 import java.util.ResourceBundle;
 
+/**
+ * This class controls the reports screen
+ */
 public class ReportsController implements Initializable {
+    ObservableList<Appointment> appoointmentList;
     CustomerDAOImpl customerDAO;
     ContactDAOImpl contactDAO;
     UserDAOImpl userDAO;
@@ -99,6 +104,7 @@ public class ReportsController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
+        appoointmentList = FXCollections.observableArrayList();
         customerDAO = new CustomerDAOImpl();
         contactDAO = new ContactDAOImpl();
         userDAO = new UserDAOImpl();
@@ -126,15 +132,6 @@ public class ReportsController implements Initializable {
         reportBox.setItems(reportTypesList);
     }
 
-    public void customerApptsByTypeMonth(ActionEvent actionEvent) {
-    }
-
-    public void scheduleByContact(ActionEvent actionEvent) {
-    }
-
-    public void apptsByUser(ActionEvent actionEvent) {
-    }
-
     /**
      * This method navigates the user to the Appointment Manager screen.
      *
@@ -150,6 +147,12 @@ public class ReportsController implements Initializable {
         stage.show();
     }
 
+    /**
+     * This method populates the first combobox depending on the report type selected and shows the remaining comboboxes based on report type
+     * @param actionEvent Report type combobox selection event
+     * @throws SQLException SQL error
+     * @throws ClassNotFoundException Class not found error
+     */
     public void setReportType(ActionEvent actionEvent) throws SQLException, ClassNotFoundException {
         int selectedReport = reportBox.getSelectionModel().getSelectedIndex();
         switch (selectedReport) {
@@ -174,6 +177,7 @@ public class ReportsController implements Initializable {
                 apptTypeLabel.setVisible(false);
                 apptTypeBox.setVisible(false);
                 runReportButton.setVisible(true);
+                startDateTimeCol.setSortType(TableColumn.SortType.ASCENDING);
                 break;
             case 2:
                 reportLabel1.setText("User");
@@ -197,6 +201,55 @@ public class ReportsController implements Initializable {
         }
     }
 
-    public void runReport(ActionEvent actionEvent) {
+    /**
+     * This method populates the appointments table view and displays the total number of appointments meeting the selected criteria
+     * @param actionEvent Button click event
+     * @throws SQLException SQL error
+     * @throws ClassNotFoundException Class not found error
+     */
+    public void runReport(ActionEvent actionEvent) throws SQLException, ClassNotFoundException {
+        appoointmentList.clear();
+        int reportTypeSelection = reportBox.getSelectionModel().getSelectedIndex();
+        String reportBox1Selection = reportBox1.getSelectionModel().getSelectedItem().toString();
+        int monthSelection = 0;
+        String apptTypeSelection = null;
+        if (reportTypeSelection == 0){
+            monthSelection = monthBox.getSelectionModel().getSelectedIndex() + 1;
+            apptTypeSelection = apptTypeBox.getSelectionModel().getSelectedItem().toString();
+        }
+        int totalAppts = 0;
+        switch (reportTypeSelection) {
+            case 0:
+                for (Appointment appt : AppointmentDAOImpl.appointmentObservableList) {
+                    if (appt.getCustomerID() == customerDAO.getCustomerIDByName(reportBox1Selection)) {
+                        if (appt.getStartDateTime().getMonth().getValue() == monthSelection) {
+                            if (appt.getType().equals(apptTypeSelection)) {
+                                appoointmentList.add(appt);
+                                totalAppts++;
+                            }
+                        }
+
+                    }
+                }
+                break;
+            case 1:
+                for (Appointment appt : AppointmentDAOImpl.appointmentObservableList) {
+                    if (appt.getContactName().equals(reportBox1Selection)) {
+                        appoointmentList.add(appt);
+                        totalAppts++;
+                    }
+                }
+                break;
+            case 2:
+                for (Appointment appt : AppointmentDAOImpl.appointmentObservableList) {
+                    if (appt.getUserName().equals(reportBox1Selection)) {
+                        appoointmentList.add(appt);
+                        totalAppts++;
+                    }
+                }
+                break;
+        }
+        apptTableview.setItems(appoointmentList);
+        apptCountLabel.setText(String.valueOf(totalAppts));
     }
 }

@@ -14,6 +14,9 @@ import java.text.ParseException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
+/**
+ * This class implements the Appointment DAO interface
+ */
 public class AppointmentDAOImpl implements AppointmentDAO {
     public static ObservableList<Appointment> appointmentObservableList = FXCollections.observableArrayList();
     public static Appointment selectedAppointment;
@@ -39,7 +42,14 @@ public class AppointmentDAOImpl implements AppointmentDAO {
     private int contactID;
     private String contactName;
 
-
+    /**
+     * This method retrieves appointments from the database
+     * @param radioSelection All, Week, or Month radio button selection
+     * @return Returns ObservableList of appointments
+     * @throws SQLException SQL error
+     * @throws ClassNotFoundException Class not found error
+     * @throws ParseException Parse error
+     */
     @Override
     public ObservableList<Appointment> getAppointments(String radioSelection) throws SQLException, ClassNotFoundException, ParseException {
         appointmentObservableList.clear();
@@ -78,6 +88,13 @@ public class AppointmentDAOImpl implements AppointmentDAO {
         return appointmentObservableList;
     }
 
+    /**
+     * This method retrieves appointments by customer ID
+     * @param custID Customer ID
+     * @return Returns true if a customer has appointments scheduled
+     * @throws SQLException SQL error
+     * @throws ClassNotFoundException Class not found error
+     */
     @Override
     public boolean getCustomerAppointments(int custID) throws SQLException, ClassNotFoundException {
         boolean result = false;
@@ -93,7 +110,28 @@ public class AppointmentDAOImpl implements AppointmentDAO {
         return result;
     }
 
-
+    /**
+     * This method updates an existing appointment
+     * @param newApptID Appointment ID
+     * @param apptTitle Appointment Title
+     * @param apptDesc Appointment Description
+     * @param apptLocation Appointment Location
+     * @param apptType Appointment Type
+     * @param startDate Appointment Start Date
+     * @param startHour Appointment Start Hour
+     * @param startMinute Appointment Start Minute
+     * @param startAMPM Appointment Start AM/PM
+     * @param endDate Appointment End Date
+     * @param endHour Appointment End Hour
+     * @param endMinute Appointment End Minute
+     * @param endAMPM Appointment End AM/PM
+     * @param customerName Customer Name
+     * @param username User Name
+     * @param contactName Contact Name
+     * @return Returns true if update is successful
+     * @throws SQLException SQL error
+     * @throws ClassNotFoundException CLass not found error
+     */
     @Override
     public boolean updateAppointment(int newApptID, String apptTitle, String apptDesc, String apptLocation, String apptType, String startDate, String startHour, String startMinute, String startAMPM, String endDate, String endHour, String endMinute, String endAMPM, String customerName, String username, String contactName) throws SQLException, ClassNotFoundException {
         customerDAO = new CustomerDAOImpl();
@@ -118,6 +156,13 @@ public class AppointmentDAOImpl implements AppointmentDAO {
         return result;
     }
 
+    /**
+     * This method deletes an appointment from the database
+     * @param apptID Appointment ID
+     * @return Returns true if delete is successful
+     * @throws SQLException SQL error
+     * @throws ClassNotFoundException CLass not found error
+     */
     @Override
     public boolean deleteAppointment(int apptID) throws SQLException, ClassNotFoundException {
         PreparedStatement statement = JDBC.openConnection().prepareStatement("DELETE FROM appointments WHERE Appointment_ID = ?");
@@ -127,6 +172,27 @@ public class AppointmentDAOImpl implements AppointmentDAO {
         return result;
     }
 
+    /**
+     * This method adds a new appointment to the database
+     * @param apptTitle Appointment Title
+     * @param apptDesc Appointment Description
+     * @param apptLocation Appointment Location
+     * @param apptType Appointment Type
+     * @param startDate Appointment Start Date
+     * @param startHour Appointment Start Hour
+     * @param startMinute Appointment Start Minute
+     * @param startAMPM Appointment Start AM/PM
+     * @param endDate Appointment End Date
+     * @param endHour Appointment End Hour
+     * @param endMinute Appointment End Minute
+     * @param endAMPM Appointment End AM/PM
+     * @param newCustomerName Customer Name
+     * @param newContactName Contact Name
+     * @param newUserName User Name
+     * @return Returns true if add is successful
+     * @throws SQLException SQL error
+     * @throws ClassNotFoundException Class not found error
+     */
     @Override
     public boolean addAppointment(String apptTitle, String apptDesc, String apptLocation, String apptType, String startDate, String startHour, String startMinute, String startAMPM, String endDate, String endHour, String endMinute, String endAMPM, String newCustomerName, String newContactName, String newUserName) throws SQLException, ClassNotFoundException {
         customerDAO = new CustomerDAOImpl();

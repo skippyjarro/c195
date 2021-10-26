@@ -3,6 +3,9 @@ package utilities;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
 
+/**
+ * This class provides Date/Time conversion utilities
+ */
 public abstract class DateTimeUtilities {
     private static DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMM d yyyy h:mm a z");
     private static LocalDate date;
@@ -11,6 +14,14 @@ public abstract class DateTimeUtilities {
     private static ZonedDateTime zonedDateTime;
     private static String formattedDateTime;
 
+    /**
+     * This method converts string to Eastern Time
+     * @param date Date string
+     * @param hour Hour String
+     * @param minute Minute String
+     * @param amPM AM/PM String
+     * @return Returns time in Eastern Time
+     */
     public static LocalTime convertToEasternTime(String date, String hour, String minute, String amPM) {
         LocalDateTime localDateTime;
         LocalDate localDate = LocalDate.parse(date);
@@ -23,7 +34,14 @@ public abstract class DateTimeUtilities {
         return newLocalTime;
     }
 
-
+    /**
+     * This method takes string values and converts them to LocalDateTime
+     * @param stringDate String Date
+     * @param stringHour String Hour
+     * @param stringMin String Minute
+     * @param amPM Straing AM/PM
+     * @return Returns LocalDateTime
+     */
     public static LocalDateTime convertInputToLocalDateTime(String stringDate, String stringHour, String stringMin, String amPM) {
         date = LocalDate.parse(stringDate);
         LocalDateTime localDateTime;
@@ -36,6 +54,11 @@ public abstract class DateTimeUtilities {
         return localDateTime;
     }
 
+    /**
+     * This method converts LocalDateTime to a formatted string
+     * @param localDateTime LocalDateTime value
+     * @return Returns formateed date/time string
+     */
     public static String getFormattedDateTime(LocalDateTime localDateTime) {
         formattedDateTime = ZonedDateTime.of(localDateTime, ZoneId.systemDefault()).format(formatter);
         return formattedDateTime;

@@ -12,6 +12,11 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Locale;
 
+/**
+ * This is the Main class
+ * @author Nate Sukhtipyaroge
+ * @version 1.0
+ */
 public class Main extends Application {
 
 

@@ -8,7 +8,11 @@ import model.User;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.text.ParseException;
 
+/**
+ * This class implements the Customer DAO interface
+ */
 public class CustomerDAOImpl implements CustomerDAO{
     private int customerID;
     private String customerName;
@@ -18,6 +22,12 @@ public class CustomerDAOImpl implements CustomerDAO{
     private String customerDiv;
     private String customerCountry;
 
+    /**
+     * This method retrieves a list of customers
+     * @return Returns an ObservableList of customers
+     * @throws SQLException SQL error
+     * @throws ClassNotFoundException CLass not found error
+     */
     @Override
     public ObservableList<Customer> getCustomers() throws SQLException, ClassNotFoundException {
         ObservableList<Customer> allCustomers = FXCollections.observableArrayList();
@@ -38,6 +48,18 @@ public class CustomerDAOImpl implements CustomerDAO{
         return allCustomers;
     }
 
+    /**
+     * This method updates existing customers in the database
+     * @param customerID Customer ID
+     * @param customerName Customer Name
+     * @param customerAddress Customer Address
+     * @param customerPostalCode Customer Postal Code
+     * @param customerPhone Customer Phone Number
+     * @param divisionID First-Level Division ID
+     * @return Returns true if update is successful
+     * @throws SQLException SQL error
+     * @throws ClassNotFoundException CLass not found error
+     */
     @Override
     public boolean updateCustomer(int customerID, String customerName, String customerAddress, String customerPostalCode, String customerPhone, int divisionID) throws SQLException, ClassNotFoundException {
         PreparedStatement statement = JDBC.openConnection().prepareStatement("UPDATE customers SET Customer_Name = ?, Address = ?, Postal_Code = ?, Phone = ?, Last_Update = NOW(), Last_Updated_By = ?, Division_ID = ? WHERE Customer_ID = ?");
@@ -53,6 +75,13 @@ public class CustomerDAOImpl implements CustomerDAO{
         return result;
     }
 
+    /**
+     * This method deletes a customer from the database
+     * @param customerID Customer ID
+     * @return Returns true if delete is successful
+     * @throws SQLException SQL error
+     * @throws ClassNotFoundException CLass not found error
+     */
     @Override
     public boolean deleteCustomer(int customerID) throws SQLException, ClassNotFoundException {
         PreparedStatement deleteStatement = JDBC.openConnection().prepareStatement("DELETE FROM customers WHERE Customer_ID = ?");
@@ -62,6 +91,17 @@ public class CustomerDAOImpl implements CustomerDAO{
         return true;
     }
 
+    /**
+     * This method adds a new customer to the database
+     * @param customerName Customer Name
+     * @param customerAddress Customer Address
+     * @param customerPostalCode Customer postal Code
+     * @param customerPhone Customer Phone Number
+     * @param divisionID First-Level Division ID
+     * @return Returns true if add is successful
+     * @throws SQLException SQL error
+     * @throws ClassNotFoundException CLass not found error
+     */
     @Override
     public boolean addCustomer(String customerName, String customerAddress, String customerPostalCode, String customerPhone, int divisionID) throws SQLException, ClassNotFoundException {
         PreparedStatement statement = JDBC.openConnection().prepareStatement("INSERT INTO customers(Customer_Name, Address, Postal_Code, Phone, Create_Date, Created_By, Last_Update, Last_Updated_By, Division_ID) VALUES (?, ?, ?, ?, NOW(), ?, NOW(), ?, ?)");
@@ -77,6 +117,12 @@ public class CustomerDAOImpl implements CustomerDAO{
         return result;
     }
 
+    /**
+     * This method retrieves a list of customer Names
+     * @return Returns an ObservableList of strings with customer Name
+     * @throws SQLException SQL error
+     * @throws ClassNotFoundException CLass not found error
+     */
     @Override
     public ObservableList<String> getCustomerNames() throws SQLException, ClassNotFoundException {
         ObservableList<String> allCustomers = FXCollections.observableArrayList();
@@ -90,6 +136,13 @@ public class CustomerDAOImpl implements CustomerDAO{
         return allCustomers;
     }
 
+    /**
+     * This method retrieves the Customer ID for a customer
+     * @param name Customer Name
+     * @return Returns the ID for a customer
+     * @throws SQLException SQL error
+     * @throws ClassNotFoundException CLass not found error
+     */
     @Override
     public int getCustomerIDByName(String name) throws SQLException, ClassNotFoundException {
         int custID = 0;

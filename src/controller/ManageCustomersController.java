@@ -12,7 +12,6 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.Stage;
-import model.Appointment;
 import model.Customer;
 
 import java.io.IOException;
@@ -122,6 +121,9 @@ public class ManageCustomersController implements Initializable {
         }
     }
 
+    /**
+     * This method populates the customers table view
+     */
     private void populateCustomerTable() {
         customerTable.getItems().clear();
         try {
@@ -136,8 +138,8 @@ public class ManageCustomersController implements Initializable {
     /**
      * This method populates the first-level division combobox after selecting a country
      * @param actionEvent country selection event
-     * @throws SQLException
-     * @throws ClassNotFoundException
+     * @throws SQLException SQL error
+     * @throws ClassNotFoundException Class not found error
      */
     public void setFirstLevelDiv(ActionEvent actionEvent) throws SQLException, ClassNotFoundException {
         if(!countryBox.getSelectionModel().isEmpty()) {
@@ -148,7 +150,6 @@ public class ManageCustomersController implements Initializable {
 
     /**
      * This method navigates the user to the Appointment Manager screen.
-     *
      * @param actionEvent Button click event
      * @throws IOException Incorrect input
      */
@@ -161,7 +162,12 @@ public class ManageCustomersController implements Initializable {
         stage.show();
     }
 
-
+    /**
+     * This method saves the customer to the database
+     * @param actionEvent Button click event
+     * @throws SQLException SQL error
+     * @throws ClassNotFoundException Class not found error
+     */
     public void saveCustomer(ActionEvent actionEvent) throws SQLException, ClassNotFoundException {
         if (countryBox.getSelectionModel().isEmpty() || custNameField.getText().isEmpty() || custAddressField.getText().isEmpty() || postalCodeField.getText().isEmpty() || custPhoneField.getText().isEmpty() || firstLevelDivBox.getSelectionModel().isEmpty()) {
             Alert missingFieldsAlert = new Alert(Alert.AlertType.ERROR);
@@ -185,6 +191,10 @@ public class ManageCustomersController implements Initializable {
         populateCustomerTable();
     }
 
+    /**
+     * This method clears the customer entry form fields
+     * @param actionEvent Button click event
+     */
     public void clearForm(ActionEvent actionEvent) {
         firstLevelDivBox.getItems().clear();
         if (!countryBox.getSelectionModel().isEmpty()) {
@@ -196,6 +206,12 @@ public class ManageCustomersController implements Initializable {
         postalCodeField.clear();
     }
 
+    /**
+     * This method deletes the selected customer from the database and updates the table view
+     * @param actionEvent Button click event
+     * @throws SQLException SQL error
+     * @throws ClassNotFoundException CLass not found error
+     */
     public void deleteCustomer(ActionEvent actionEvent) throws SQLException, ClassNotFoundException {
         Customer customer = (Customer) customerTable.getSelectionModel().getSelectedItem();
         System.out.println(customer.getCustomerID());
@@ -226,6 +242,10 @@ public class ManageCustomersController implements Initializable {
             populateCustomerTable();
         }
 
+    /**
+     * This method populates the customer form fields with the selected customer to allow editing
+     * @param actionEvent Button click event
+     */
     public void editCustomer(ActionEvent actionEvent) {
         Customer customer = (Customer) customerTable.getSelectionModel().getSelectedItem();
         countryBox.getSelectionModel().select(customer.getCustCountry());

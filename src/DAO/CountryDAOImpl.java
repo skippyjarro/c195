@@ -8,6 +8,13 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public class CountryDAOImpl implements CountryDAO{
+
+    /**
+     * This method retrieves a list of countries from the database
+     * @return Returns an ObservableList of countries
+     * @throws SQLException SQL error
+     * @throws ClassNotFoundException CLass not found error
+     */
     @Override
     public ObservableList<String> getCountries() throws SQLException, ClassNotFoundException {
         ObservableList<String> countryObservableList = FXCollections.observableArrayList();
@@ -18,18 +25,5 @@ public class CountryDAOImpl implements CountryDAO{
         }
         JDBC.closeConnection();
         return countryObservableList;
-    }
-
-    @Override
-    public int getCountryID(String countryName) throws SQLException, ClassNotFoundException {
-        int countryID = 0;
-        PreparedStatement statement = JDBC.openConnection().prepareStatement("SELECT Country_ID FROM countries WHERE Country = ?");
-        statement.setString(1, countryName);
-        ResultSet resultSet = Query.sqlQuery(statement);
-        while (resultSet.next()) {
-            countryID = resultSet.getInt("Country_ID");
-        }
-        JDBC.closeConnection();
-        return countryID;
     }
 }

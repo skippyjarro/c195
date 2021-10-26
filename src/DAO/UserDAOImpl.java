@@ -9,7 +9,17 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+/**
+ * This class implements the UserDAO interface
+ */
 public class UserDAOImpl implements UserDAO{
+
+    /**
+     * This method retrieves a list of users from the Database
+     * @return Returns an ObservableList of Users
+     * @throws SQLException SQL error
+     * @throws ClassNotFoundException CLass not found error
+     */
     @Override
     public ObservableList<User> getUserList() throws SQLException, ClassNotFoundException {
         ObservableList<User> userList = FXCollections.observableArrayList();
@@ -26,11 +36,12 @@ public class UserDAOImpl implements UserDAO{
         return userList;
     }
 
-    @Override
-    public String getUserNameByID(int userID) {
-        return null;
-    }
-
+    /**
+     * This method retrieves the user ID by name
+     * @param userName User Name
+     * @return Returns the user ID
+     * @throws SQLException SQL error
+     */
     @Override
     public int getUserIDByName(String userName) throws SQLException {
         int userID = 0;

@@ -12,6 +12,7 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.Stage;
 import model.Appointment;
+import model.UpcomingAppointmentsAlert;
 import model.User;
 import utilities.DateTimeUtilities;
 
@@ -22,6 +23,9 @@ import java.text.ParseException;
 import java.time.LocalDateTime;
 import java.util.ResourceBundle;
 
+/**
+ * This class controls the Appointment Manager screen
+ */
 public class AppointmentManagerController implements Initializable {
 
     AppointmentDAOImpl appointmentDAO;
@@ -95,8 +99,27 @@ public class AppointmentManagerController implements Initializable {
     @FXML
     private Button deleteApptButton;
 
+    /**
+     * Lambda Expression for Upcoming Appointments Alert displays an alert to the user upon login with a list of appointments in the next 15 minutes for the current user or that there are no upcoming appointments
+     * @param url URL
+     * @param resourceBundle Localization ResourceBundle
+     */
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
+        //Lambda expression to display alert for upcoming appointments if any exist
+        UpcomingAppointmentsAlert upcomingAppointmentsAlert = appt -> {
+            if (appt != null) {
+                Alert successAlert = new Alert(Alert.AlertType.INFORMATION);
+                successAlert.setTitle("Upcoming Appointments");
+                successAlert.setHeaderText("You have an upcoming appointments in the next 15 minutes.\n" + appt.getAppointmentID() + " - " + DateTimeUtilities.getFormattedDateTime(appt.getStartDateTime()));
+                successAlert.showAndWait();
+            } else {
+                Alert successAlert = new Alert(Alert.AlertType.INFORMATION);
+                successAlert.setTitle("Upcoming Appointments");
+                successAlert.setHeaderText("You have no upcoming appointments in the next 15 minutes.");
+                successAlert.showAndWait();
+            }
+        };
         appointmentDAO = new AppointmentDAOImpl();
         currentUserLabel.setText("Current User: " + User.getCurrentUserName());
 
@@ -120,24 +143,13 @@ public class AppointmentManagerController implements Initializable {
         //Display pop-up with number of appointments upcoming in the next 15 minutes on initial login only
         if (LoginController.firstLogin) {
             Appointment upcomingAppt = checkUpcomingAppointments();
-            if (upcomingAppt != null) {
-                Alert successAlert = new Alert(Alert.AlertType.INFORMATION);
-                successAlert.setTitle("Upcoming Appointments");
-                successAlert.setHeaderText("You have an upcoming appointments in the next 15 minutes.\n" + upcomingAppt.getAppointmentID() + " - " + DateTimeUtilities.getFormattedDateTime(upcomingAppt.getStartDateTime()));
-                successAlert.showAndWait();
-            } else {
-                Alert successAlert = new Alert(Alert.AlertType.INFORMATION);
-                successAlert.setTitle("Upcoming Appointments");
-                successAlert.setHeaderText("You have no upcoming appointments in the next 15 minutes.");
-                successAlert.showAndWait();
-            }
+            upcomingAppointmentsAlert.displayUpcomingAppointments(upcomingAppt);
             LoginController.firstLogin = false;
         }
     }
 
     /**
      * This method is called when the user clicks the Exit button. It closes the program.
-     *
      * @param actionEvent Exit button click event
      */
     public void exitProgram(ActionEvent actionEvent) {
@@ -145,24 +157,36 @@ public class AppointmentManagerController implements Initializable {
         stage.close();
     }
 
+    /**
+     * This method populates the appointment table view based on the radio button selected
+     * @param actionEvent Radio button selection event
+     * @throws SQLException SQL Exception
+     * @throws ClassNotFoundException Class Not Found
+     * @throws ParseException Parese error
+     */
     public void getAppointments(ActionEvent actionEvent) throws SQLException, ClassNotFoundException, ParseException {
         apptTableview.setItems(appointmentDAO.getAppointments(actionEvent.toString()));
     }
 
+    /**
+     * This method navigates the user to the Manage Customers screen
+     * @param actionEvent Button Click Event
+     * @throws IOException Incorrect Input
+     */
     public void toManageCustomers(ActionEvent actionEvent) throws IOException {
         Parent root = FXMLLoader.load(getClass().getResource("/view/ManageCustomers.fxml"));
-
         Stage stage = (Stage) ((Node) actionEvent.getSource()).getScene().getWindow();
-
         Scene scene = new Scene(root, 1366, 768);
-
         stage.setResizable(false);
-
         stage.setScene(scene);
-
         stage.show();
     }
 
+    /**
+     * This method navigates the user to the Add/Edit appointment screen and passes the selected appointment if editing
+     * @param actionEvent Button click event
+     * @throws IOException Input error
+     */
     public void toAddEditAppointment(ActionEvent actionEvent) throws IOException {
         if (actionEvent.getTarget().toString().contains("Edit Appointment")) {
             AppointmentDAOImpl.selectedAppointment = (Appointment) apptTableview.getSelectionModel().getSelectedItem();
@@ -174,21 +198,23 @@ public class AppointmentManagerController implements Initializable {
             return;
         }
         Parent root = FXMLLoader.load(getClass().getResource("/view/AddEditAppointment.fxml"));
-
         Stage stage = (Stage) ((Node) actionEvent.getSource()).getScene().getWindow();
-
         Scene scene = new Scene(root, 600, 768);
-
         stage.setResizable(false);
-
         stage.setScene(scene);
-
         stage.show();
     }
 
+    /**
+     * This method cancels a selected appointment by taking the selected appointment and deleting it from the database
+     * @param actionEvent Button click event
+     * @throws SQLException SQL error
+     * @throws ClassNotFoundException Class not found
+     * @throws ParseException Parse error
+     */
     public void cancelAppt(ActionEvent actionEvent) throws SQLException, ClassNotFoundException, ParseException {
         AppointmentDAOImpl.selectedAppointment = (Appointment) apptTableview.getSelectionModel().getSelectedItem();
-        if (actionEvent.getSource().toString().contains("Edit Apopintment") && AppointmentDAOImpl.selectedAppointment == null) {
+        if (actionEvent.getSource().toString().contains("Cancel Apopintment") && AppointmentDAOImpl.selectedAppointment == null) {
             Alert unselectedPartAlert = new Alert(Alert.AlertType.ERROR);
             unselectedPartAlert.setHeaderText("Must select an appointment");
             unselectedPartAlert.showAndWait();
@@ -199,7 +225,7 @@ public class AppointmentManagerController implements Initializable {
         if (result) {
             Alert successAlert = new Alert(Alert.AlertType.INFORMATION);
             successAlert.setTitle("Success");
-            successAlert.setHeaderText("Appointment Canceled Successfully");
+            successAlert.setHeaderText("Appointment ID: " + AppointmentDAOImpl.selectedAppointment.getAppointmentID() + " Type: " + AppointmentDAOImpl.selectedAppointment.getType() + " Canceled Successfully");
             successAlert.showAndWait();
             getAppointments(actionEvent);
         } else if (!result) {
@@ -211,6 +237,10 @@ public class AppointmentManagerController implements Initializable {
         AppointmentDAOImpl.selectedAppointment = null;
     }
 
+    /**
+     * This method checks the list of appointments for appointments upcoming in the next 15 minutes for the user that is currently logged in
+     * @return Returns the appointment upcoming in the next 15 minutes
+     */
     private Appointment checkUpcomingAppointments() {
         Appointment upcomingAppt = null;
         for (Appointment appt:AppointmentDAOImpl.appointmentObservableList) {
@@ -221,17 +251,17 @@ public class AppointmentManagerController implements Initializable {
         return upcomingAppt;
     }
 
+    /**
+     * This method navigates the user to the Reports screen
+     * @param actionEvent Button click event
+     * @throws IOException Input error
+     */
     public void toReports(ActionEvent actionEvent) throws IOException {
         Parent root = FXMLLoader.load(getClass().getResource("/view/Reports.fxml"));
-
         Stage stage = (Stage) ((Node) actionEvent.getSource()).getScene().getWindow();
-
         Scene scene = new Scene(root, 1366, 768);
-
         stage.setResizable(false);
-
         stage.setScene(scene);
-
         stage.show();
     }
 }

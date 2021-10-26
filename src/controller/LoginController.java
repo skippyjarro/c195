@@ -16,20 +16,31 @@ import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import model.User;
 
-import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.net.URL;
-import java.sql.*;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.Locale;
 import java.util.ResourceBundle;
 
+/**
+ * This class is the controller for the login prompt
+ */
 public class LoginController implements Initializable {
     public static boolean firstLogin;
     ResourceBundle rb;
 
-    File login_activity;
+    String filename = "src/login_activity.txt";
+    FileWriter outputFile;
+    PrintWriter printWriter;
+    DateTimeFormatter format = DateTimeFormatter.ofPattern("MM/dd/yyyy HH:mm");
 
     @FXML
     private Label title;
@@ -60,6 +71,14 @@ public class LoginController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
+        try {
+            outputFile = new FileWriter(filename, true);
+            printWriter = new PrintWriter(outputFile);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         firstLogin = true;
         rb = ResourceBundle.getBundle("Localization/Bundle", Locale.getDefault());
         title.setText(rb.getString("title"));
@@ -70,6 +89,13 @@ public class LoginController implements Initializable {
         userLocationLabel.setText("Current Location: " + ZoneId.systemDefault());
     }
 
+    /**
+     * This method checks the username and password against the database values.  It navigates the user to the Appointment Manager screen if the login is valid otherwise displays and error message if invalid.
+     * @param actionEvent Login button click event
+     * @throws SQLException SQL error
+     * @throws ClassNotFoundException Class not found error
+     * @throws IOException Input error
+     */
     public void login(ActionEvent actionEvent) throws SQLException, ClassNotFoundException, IOException {
         String userName = userNameField.getText();
         String password = passwordField.getText();
@@ -103,10 +129,14 @@ public class LoginController implements Initializable {
         if (result) {
             User.setCurrentUserId(currentUserID);
             User.setCurrentUserName(currentUserName);
+            printWriter.println(LocalDateTime.now().format(format) + " - Successful Login by User: " + currentUserName);
             toAppointmentManager(actionEvent);
+            printWriter.close();
         } else {
             messageLabel.setTextFill(Color.RED);
             messageLabel.setText(rb.getString("error"));
+            printWriter.println(LocalDateTime.now().format(format) + " - Unsuccessful Login Attempt by User: " + userName);
+            printWriter.close();
         }
 
 
@@ -114,7 +144,6 @@ public class LoginController implements Initializable {
 
     /**
      * This method navigates the user to the Appointment Manager screen.
-     *
      * @param actionEvent Button click event
      * @throws IOException Incorrect input
      */
@@ -129,7 +158,6 @@ public class LoginController implements Initializable {
 
     /**
      * This method is called when the user clicks the Exit button. It closes the program.
-     *
      * @param actionEvent Exit button click event
      */
     public void exitProgram(ActionEvent actionEvent) {

@@ -16,6 +16,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.stage.Stage;
 import model.Appointment;
+import model.DisplayAlert;
 import utilities.DateTimeUtilities;
 
 import java.io.IOException;
@@ -26,7 +27,17 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ResourceBundle;
 
+/**
+ * This class controls the Appointment Add/Edit Screen
+ */
 public class AddEditAppointmentController implements Initializable {
+    //Lambda expression to display error messages using messageText as argument
+    DisplayAlert errorMessage = messageText -> {
+        Alert failureAlert = new Alert(Alert.AlertType.ERROR);
+        failureAlert.setTitle("Error");
+        failureAlert.setHeaderText(messageText);
+        failureAlert.showAndWait();
+    };
     private AppointmentDAOImpl appointmentDAO;
     private ContactDAOImpl contactDAO;
     private CustomerDAOImpl customerDAO;
@@ -198,6 +209,17 @@ public class AddEditAppointmentController implements Initializable {
         }
     }
 
+    /**
+     * This method saves the appointment to the database via Insert or Update depending on if the Appt ID is existing
+     * Lambda Expression to display an error message if End time is before Start time
+     * Lambda Expression to display an error message if appointment times are outside business hours
+     * Lambda Expression to display an error message if appointment overlaps with another appointment
+     * Lambda Expression to display an error message if there was a problem saving the appointment to the database
+     * @param actionEvent Button click event
+     * @throws SQLException SQL Exception
+     * @throws IOException IO Exception
+     * @throws ClassNotFoundException Class Not Found Exception
+     */
     public void saveAppointment(ActionEvent actionEvent) throws SQLException, IOException, ClassNotFoundException {
         boolean result;
         int apptID;
@@ -219,10 +241,7 @@ public class AddEditAppointmentController implements Initializable {
 
         //check to see if start date/time is after end date/time
         if (apptTimeValidation(startDate, startHour, startMinute, startAMPM, endDate, endHour, endMinute, endAMPM)) {
-            Alert failureAlert = new Alert(Alert.AlertType.ERROR);
-            failureAlert.setTitle("Error");
-            failureAlert.setHeaderText("Start date/time must be before End date/time");
-            failureAlert.showAndWait();
+            errorMessage.displayAlert("Start date/time must be before End date/time");
             return;
         }
 
@@ -233,28 +252,27 @@ public class AddEditAppointmentController implements Initializable {
             apptID = AppointmentDAOImpl.selectedAppointment.getAppointmentID();
         }
 
+        //Check if appointment times are outside business hours and alert if true
         if (verifyAgainstBusinessHours(startDate, startHour, startMinute, startAMPM, endDate, endHour, endMinute, endAMPM)) {
-            Alert failureAlert = new Alert(Alert.AlertType.ERROR);
-            failureAlert.setTitle("Error");
-            failureAlert.setHeaderText("Appointment times are outside the business hours of 8AM-10PM Eastern Time");
-            failureAlert.showAndWait();
+            errorMessage.displayAlert("Appointment times are outside the business hours of 8AM-10PM Eastern Time");
             return;
         }
 
+        //Check if appointment times overlap with an existing appointment and alert if true
         if (checkOverlappingAppts(customerDAO.getCustomerIDByName(customerName), apptID, startDate, startHour, startMinute, startAMPM, endDate, endHour, endMinute, endAMPM)) {
-            Alert failureAlert = new Alert(Alert.AlertType.ERROR);
-            failureAlert.setTitle("Error");
-            failureAlert.setHeaderText("Appointment times overlap with another appointment for " + customerName);
-            failureAlert.showAndWait();
+            errorMessage.displayAlert("Appointment times overlap with another appointment for " + customerName);
             return;
         }
 
+        //Update an existing appointment if Appointment ID field contains an ID otherwise add a new Appointment
         try {
             apptID = Integer.parseInt(apptIDField.getText());
             result = appointmentDAO.updateAppointment(apptID, apptTitle, apptDesc, apptLocation, apptType, startDate, startHour, startMinute, startAMPM, endDate, endHour, endMinute, endAMPM, customerName, userName, contactName);
         } catch (Exception e) {
             result = appointmentDAO.addAppointment(apptTitle, apptDesc, apptLocation, apptType, startDate, startHour, startMinute, startAMPM, endDate, endHour, endMinute, endAMPM, customerName, contactName, userName);
         }
+
+        //Display result of Add or Update
         if (result) {
             Alert successAlert = new Alert(Alert.AlertType.INFORMATION);
             successAlert.setTitle("Success");
@@ -262,12 +280,11 @@ public class AddEditAppointmentController implements Initializable {
             successAlert.showAndWait();
             toAppointmentManager(actionEvent);
         } else {
-            Alert failureAlert = new Alert(Alert.AlertType.ERROR);
-            failureAlert.setTitle("Error");
-            failureAlert.setHeaderText("There was a problem saving the appointment");
-            failureAlert.showAndWait();
+            errorMessage.displayAlert("There was a problem saving the appointment");
             return;
         }
+
+        //Clear the currently selected appointment
         AppointmentDAOImpl.selectedAppointment = null;
     }
 
@@ -287,6 +304,18 @@ public class AddEditAppointmentController implements Initializable {
         stage.show();
     }
 
+    /**
+     * This method provides validation of appointment times to ensure they are within the business hours of 8a-10p Eastern
+     * @param startDate String Start Date
+     * @param startHour String Start Hour
+     * @param startMinute String Start Minute
+     * @param startAMPM String Start AM/PM
+     * @param endDate String End Date
+     * @param endHour String End Hour
+     * @param endMinute String End Minute
+     * @param endAMPM String End AM/PM
+     * @return Returns a boolean value true if appointment times are outside business hours
+     */
     private boolean verifyAgainstBusinessHours(String startDate, String startHour, String startMinute, String startAMPM, String endDate, String endHour, String endMinute, String endAMPM) {
         LocalTime businessStart = LocalTime.of(8, 00);
         LocalTime businessEnd = LocalTime.of(22, 00);
@@ -298,6 +327,20 @@ public class AddEditAppointmentController implements Initializable {
         return false;
     }
 
+    /**
+     * This method checks to see if there are existing appointments for the customer that may overlap with the new appointment
+     * @param custID Customer ID
+     * @param newApptID New appointment ID, if exists
+     * @param newStartDate New appointment Start Date
+     * @param newStartHour New appointment Start Hour
+     * @param newStartMinute New appointment Start Minute
+     * @param newStartAMPM New appointment Start AM/PM
+     * @param newEndDate New appointment End Date
+     * @param newEndHour New appointment End Hour
+     * @param newEndMinute New appointment End Minute
+     * @param newEndAMPM New appointment End AM/PM
+     * @return Returns true if the new appointment overlaps with an existing appointment
+     */
     private boolean checkOverlappingAppts(int custID, int newApptID, String newStartDate, String newStartHour, String newStartMinute, String newStartAMPM, String newEndDate, String newEndHour, String newEndMinute, String newEndAMPM) {
         LocalDateTime startDateTime = DateTimeUtilities.convertInputToLocalDateTime(newStartDate, newStartHour, newStartMinute, newStartAMPM);
         LocalDateTime endDateTime = DateTimeUtilities.convertInputToLocalDateTime(newEndDate, newEndHour, newEndMinute, newEndAMPM);
@@ -319,7 +362,10 @@ public class AddEditAppointmentController implements Initializable {
         return false;
     }
 
-
+    /**
+     * This method populates the End Date combobox if it is empty or before the start date
+     * @param actionEvent Combobox selection event
+     */
     public void autofillEndDate(ActionEvent actionEvent) {
         LocalDate startDate = startDatePicker.getValue();
         LocalDate endDate = endDatePicker.getValue();
@@ -328,6 +374,10 @@ public class AddEditAppointmentController implements Initializable {
         }
     }
 
+    /**
+     * This method populates the Start Date combobox if it is empty or after the end date
+     * @param actionEvent Date picker selection
+     */
     public void autofillStartDate(ActionEvent actionEvent) {
         LocalDate startDate = startDatePicker.getValue();
         LocalDate endDate = endDatePicker.getValue();
@@ -336,6 +386,18 @@ public class AddEditAppointmentController implements Initializable {
         }
     }
 
+    /**
+     * This method provides validation to ensure the start time is before the end time
+     * @param startDate Start Date String
+     * @param startHour Start Hour String
+     * @param startMinute Start Minute String
+     * @param startAMPM Start AM/PM String
+     * @param endDate End Date String
+     * @param endHour End Hour String
+     * @param endMinute End Minute String
+     * @param endAMPM End AM/PM String
+     * @return Returns true if end time is equal to or before start time
+     */
     private boolean apptTimeValidation(String startDate, String startHour, String startMinute, String startAMPM, String endDate, String endHour, String endMinute, String endAMPM) {
         boolean result = false;
         LocalDateTime startDateTime = DateTimeUtilities.convertInputToLocalDateTime(startDate, startHour, startMinute, startAMPM);

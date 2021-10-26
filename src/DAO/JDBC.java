@@ -2,11 +2,14 @@ package DAO;
 
 import java.sql.*;
 
+/**
+ * This class performs database connection
+ */
 public abstract class JDBC {
 
     private static final String protocol = "jdbc";
     private static final String vendor = ":mysql:";
-    private static final String location = "//skipfam.com:3306/";
+    private static final String location = "//localhost:3306/";
     private static final String databaseName = "client_schedule";
     private static final String jdbcUrl = protocol + vendor + location + databaseName + "?connectionTimeZone = SERVER";
     private static final String driver = "com.mysql.cj.jdbc.Driver";
@@ -14,6 +17,10 @@ public abstract class JDBC {
     private static final String password = "Passw0rd!";
     public static Connection connection;
 
+    /**
+     * This method opens the connection to the database
+     * @return Returns connection
+     */
     public static Connection openConnection() {
         try {
             Class.forName(driver);
@@ -26,7 +33,10 @@ public abstract class JDBC {
         return null;
     }
 
-    public static void closeConnection() throws ClassNotFoundException, SQLException {
+    /**
+     * This method closes the connection to the database
+     */
+    public static void closeConnection() {
         try {
             connection.close();
             System.out.println("Connection closed");
