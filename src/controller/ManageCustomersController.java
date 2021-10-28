@@ -250,7 +250,7 @@ public class ManageCustomersController implements Initializable {
         Customer customer = (Customer) customerTable.getSelectionModel().getSelectedItem();
         if (customer == null) {
             Alert unselectedPartAlert = new Alert(Alert.AlertType.ERROR);
-            unselectedPartAlert.setHeaderText("Must select an appointment");
+            unselectedPartAlert.setHeaderText("Must select a customer");
             unselectedPartAlert.showAndWait();
             return;
         }
