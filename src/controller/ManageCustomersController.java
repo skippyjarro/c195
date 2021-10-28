@@ -248,6 +248,12 @@ public class ManageCustomersController implements Initializable {
      */
     public void editCustomer(ActionEvent actionEvent) {
         Customer customer = (Customer) customerTable.getSelectionModel().getSelectedItem();
+        if (customer == null) {
+            Alert unselectedPartAlert = new Alert(Alert.AlertType.ERROR);
+            unselectedPartAlert.setHeaderText("Must select an appointment");
+            unselectedPartAlert.showAndWait();
+            return;
+        }
         countryBox.getSelectionModel().select(customer.getCustCountry());
         custIDField.setText("" + customer.getCustomerID());
         custNameField.setText(customer.getCustomerName());

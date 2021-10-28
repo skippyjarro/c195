@@ -191,7 +191,7 @@ public class AppointmentManagerController implements Initializable {
         if (actionEvent.getTarget().toString().contains("Edit Appointment")) {
             AppointmentDAOImpl.selectedAppointment = (Appointment) apptTableview.getSelectionModel().getSelectedItem();
         }
-        if (actionEvent.getSource().toString().contains("Edit Apopintment") && AppointmentDAOImpl.selectedAppointment == null) {
+        if (actionEvent.getTarget().toString().contains("Edit Appointment") && AppointmentDAOImpl.selectedAppointment == null) {
             Alert unselectedPartAlert = new Alert(Alert.AlertType.ERROR);
             unselectedPartAlert.setHeaderText("Must select an appointment");
             unselectedPartAlert.showAndWait();
